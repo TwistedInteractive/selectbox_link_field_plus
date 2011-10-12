@@ -20,6 +20,7 @@ jQuery(function($){
             var a = url.split('/edit/');
             var a = a[1].split('/');
             var id= a[0];
+            if(selected == null) { selected = []; }
             selected.push(id);
             $("#" + currentView).load(window.location.href + ' #' + currentView, function(){
                 $("#sblp-white").hide();
