@@ -1,5 +1,6 @@
 var sblp_currentView;
 var sblp_edit = false;
+var sblp_initview = [];
 
 jQuery(function($){
     // Create some elements, and style them:
@@ -31,7 +32,8 @@ jQuery(function($){
                 // Restore the selected items:
                 $("#" + sblp_currentView + " select").val(selected);
                 // Initialize the view (executes some javascript provided by the view):
-                if(typeof initView != 'undefined') { initView(); }
+                console.log(typeof sblp_initview[sblp_currentView] != 'undefined');
+                if(typeof sblp_initview[sblp_currentView] != 'undefined') { sblp_initview[sblp_currentView](); }
                 $("#sblp-white").hide();
             });
         } else {
@@ -43,7 +45,10 @@ jQuery(function($){
     });
 
     // Initialize the view (executes some javascript provided by the view):
-    if(typeof initView != 'undefined') { initView(); }
+    for(var i in sblp_initview)
+    {
+        sblp_initview[i]();
+    }
 
     // Bind the logic to the buttons:
     $("a.sblp-add").click(function(){
@@ -85,10 +90,10 @@ function sblp_editEntry(viewName, sectionHandle, id)
 function sblp_deleteEntry(viewName, sectionHandle, id)
 {
     sblp_currentView = viewName;
+    jQuery("#sblp-white").show();
     var ok = confirm('Are you sure you want to delete this entry? This entry will also be removed from other entries which are related. This action cannot be undone!');
     if(ok)
     {
-        jQuery("#sblp-white").show();
         // Use native Symphony functionality to delete the entry:
         var data = {
             'action[apply]': 'Apply',
@@ -102,9 +107,11 @@ function sblp_deleteEntry(viewName, sectionHandle, id)
                 // Restore the selected items:
                 jQuery("#" + sblp_currentView + " select").val(selected);
                 // Initialize the view (executes some javascript provided by the view):
-                if(typeof initView != 'undefined') { initView(); }
+                if(typeof sblp_initview[sblp_currentView] != 'undefined') { sblp_initview[sblp_currentView](); }
                 jQuery("#sblp-white").hide();
             });
         });
+    } else {
+        jQuery("#sblp-white").hide();
     }
 }

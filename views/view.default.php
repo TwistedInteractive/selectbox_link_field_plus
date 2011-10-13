@@ -35,6 +35,6 @@ Class SBLPView_Default
             ))
         );
 
-        // The default view doesn't have any extras. See the gallery-view for a more detailed example.
+        // The default view doesn't have any extras. See the gallery or the checkboxes-view for a more detailed example.
     }
 }

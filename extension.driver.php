@@ -15,7 +15,7 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
     {
         return array(
             'name' => 'Field: Select Box Link +',
-            'version' => '1.1',
+            'version' => '1.2',
             'release-date' => '2011-10-13',
             'author' => array(
                 'name' => 'Giel Berkers',

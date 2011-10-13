@@ -85,39 +85,39 @@ Class SBLPView_Gallery
                 font-size: 12px; font-weight: bold; color: #fff; display: none; }
             div.sblp-gallery a.delete { left: 80px; background: #b93434; }
             div.sblp-gallery div.image:hover a.edit, div.sblp-gallery div.image:hover a.delete { display: block; }
-            #sblp-view-'.$parent->get('id').' select { display: none; }
+            #'.$viewName.' select { display: none; }
         ', array('type'=>'text/css')));
 
         // JavaScript:
-        // Javascript should be placed inside an initView()-function, to make sure it gets executed whenever the view
-        // reloads with AJAX:
+        // Javascript should be placed inside an sblp_initview[$viewName]()-function, to make sure it gets executed whenever the view
+        // reloads with AJAX. This happens when an entry gets added, edited or deleted:
         $viewWrapper->appendChild(new XMLElement('script', '
-            function initView()
+            sblp_initview["'.$viewName.'"] = function()
             {
                 var $ = jQuery;
                 var multiple = '.($parent->get('allow_multiple_selection') == 'yes' ? 'true' : 'false').';
-                $("div.sblp-gallery div.image a.thumb").click(function(e){
+                $("#'.$viewName.' div.sblp-gallery div.image a.thumb").click(function(e){
                     var id = $(this).parent().attr("rel");
                     if(multiple)
                     {
                         $(this).parent().toggleClass("selected");
                         if($(this).parent().hasClass("selected")) {
-                            $("#sblp-view-'.$parent->get('id').' select option[value=" + id + "]").attr("selected", "selected");
+                            $("#'.$viewName.' select option[value=" + id + "]").attr("selected", "selected");
                         } else {
-                            $("#sblp-view-'.$parent->get('id').' select option[value=" + id + "]").removeAttr("selected");
+                            $("#'.$viewName.' select option[value=" + id + "]").removeAttr("selected");
                         }
                     } else {
-                        $("#sblp-view-'.$parent->get('id').' div.sblp-gallery div.image").removeClass("selected");
-                        $("#sblp-view-'.$parent->get('id').' select option").removeAttr("selected");
-                        $("#sblp-view-'.$parent->get('id').' select option[value=" + id + "]").attr("selected", "selected");
+                        $("#'.$viewName.' div.sblp-gallery div.image").removeClass("selected");
+                        $("#'.$viewName.' select option").removeAttr("selected");
+                        $("#'.$viewName.' select option[value=" + id + "]").attr("selected", "selected");
                         $(this).parent().addClass("selected");
                     }
                     return false;
                 });
-                $("#sblp-view-'.$parent->get('id').' select option:selected").each(function(){
-                    $("div.image[rel=" + $(this).val() + "]").addClass("selected");
+                $("#'.$viewName.' select option:selected").each(function(){
+                    $("#'.$viewName.' div.image[rel=" + $(this).val() + "]").addClass("selected");
                 });
-            }
+            };
         ', array('type'=>'text/javascript')));
     }
 }
