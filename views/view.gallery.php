@@ -107,7 +107,9 @@ Class SBLPView_Gallery
                             $("#sblp-view-'.$parent->get('id').' select option[value=" + id + "]").removeAttr("selected");
                         }
                     } else {
-                        $("#sblp-view-'.$parent->get('id').' div.sblp-gallery div").removeClass("selected");
+                        $("#sblp-view-'.$parent->get('id').' div.sblp-gallery div.image").removeClass("selected");
+                        $("#sblp-view-'.$parent->get('id').' select option").removeAttr("selected");
+                        $("#sblp-view-'.$parent->get('id').' select option[value=" + id + "]").attr("selected", "selected");
                         $(this).parent().addClass("selected");
                     }
                     return false;
