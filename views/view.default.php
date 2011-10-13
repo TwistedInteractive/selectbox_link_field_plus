@@ -6,13 +6,26 @@
  * Time: 14:19
  */
 
+// The class name must be 'SBLPView_[filename - view. and .php (ucfirst)]':
 Class SBLPView_Default
 {
+    /**
+     * Return the name of this view
+     * @return string
+     */
     public function getName()
     {
         return __('Default View');
     }
 
+    /**
+     * This function generates the view on the publish page
+     * @param $viewWrapper  The XMLElement wrapper in which the view is placed
+     * @param $fieldname    The name of the field
+     * @param $options      The options
+     * @param $parent       The parent element (this is the Field itself)
+     * @return void
+     */
     public function generateView(&$viewWrapper, $fieldname, $options, $parent)
     {
         // Add the selectbox:

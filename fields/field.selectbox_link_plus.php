@@ -101,7 +101,7 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         require_once(EXTENSIONS.'/selectbox_link_field_plus/views/view.'.$this->get('view').'.php');
         $className = 'SBLPView_'.ucfirst($this->get('view'));
         $view = new $className;
-
+        
         $view->generateView($viewWrapper, $fieldname, $options, $this);
 
         $label->appendChild($viewWrapper);
