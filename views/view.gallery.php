@@ -15,7 +15,7 @@ Class SBLPView_Gallery
      */
     public function getName()
     {
-        return __('Gallery');
+        return __('Gallery (select a field of the type \'upload\')');
     }
 
     /**
@@ -37,32 +37,41 @@ Class SBLPView_Gallery
 
         // Set the viewname: this is required by the javascript-functions to edit or delete entries.
         $viewName = 'sblp-view-'.$parent->get('id');
+        $alert = false;
 
         // Create the gallery:
         $gallery = new XMLElement('div', null, array('class'=>'sblp-gallery'));
         foreach($options as $optGroup)
         {
-            $gallery->appendChild(new XMLElement('h3', $optGroup['label']));
-            // Set the sectionname: this is required by the javascript-functions to edit or delete entries.
-            $sectionName = General::createHandle($optGroup['label']);
-            foreach($optGroup['options'] as $option)
+            if(isset($optGroup['label']))
             {
-                $id       = $option[0];
-                $value    = $option[2];
-                $attr     = array('rel' => $id, 'class' => 'image');
-                $xml = new SimpleXMLElement(html_entity_decode($value));
-                $attr2 = $xml->attributes();
-                $href = str_replace(URL.'/workspace/', '', $attr2['href']);
-                $img = '<img src="/image/2/100/100/5/'.$href.'" alt="thumb" width="100" height="100" />';
-                // Now this is where the thumbnail, including the edit- and delete buttons are rendered:
-                // Please note that the edit- and delete-buttons use javascript functions provided by sbl+ to handle
-                // this functionality. This is done to make sure this extension uses as much native Symphony
-                // functionality as possible:
-                $div = new XMLElement('div', '
-                    <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">E</a>
-                    <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">×</a>
-                    <a href="#" title="'.$href.'" class="thumb">'.$img.'</a>', $attr);
-                $gallery->appendChild($div);
+                $gallery->appendChild(new XMLElement('h3', $optGroup['label']));
+                // Set the sectionname: this is required by the javascript-functions to edit or delete entries.
+                $sectionName = General::createHandle($optGroup['label']);
+                foreach($optGroup['options'] as $option)
+                {
+                    $id       = $option[0];
+                    $value    = $option[2];
+                    $attr     = array('rel' => $id, 'class' => 'image');
+                    // Get the href-attribute from the link:
+                    preg_match('/<*a[^>]*href*=*["\']?([^"\']*)/', html_entity_decode($value), $matches);
+                    $href = str_replace(URL.'/workspace/', '', $matches[1]);
+                    if(empty($href)) {
+                        // If no href could be found, the field selected for the relation probably isn't of the type 'upload':
+                        // In this case, show a message to the user:
+                        $alert = true;
+                    }
+                    $img = '<img src="/image/2/100/100/5/'.$href.'" alt="thumb" width="100" height="100" />';
+                    // Now this is where the thumbnail, including the edit- and delete buttons are rendered:
+                    // Please note that the edit- and delete-buttons use javascript functions provided by sbl+ to handle
+                    // this functionality. This is done to make sure this extension uses as much native Symphony
+                    // functionality as possible:
+                    $div = new XMLElement('div', '
+                        <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">E</a>
+                        <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">×</a>
+                        <a href="#" title="'.$href.'" class="thumb">'.$img.'</a>', $attr);
+                    $gallery->appendChild($div);
+                }
             }
         }
         $viewWrapper->appendChild($gallery);
@@ -117,6 +126,7 @@ Class SBLPView_Gallery
                 $("#'.$viewName.' select option:selected").each(function(){
                     $("#'.$viewName.' div.image[rel=" + $(this).val() + "]").addClass("selected");
                 });
+                '.($alert ? 'alert("No links could be found. Are you sure you have selected a field of the type \'upload\' for the relation in the Selectbox Link Plus Field?");' : '').'
             };
         ', array('type'=>'text/javascript')));
     }

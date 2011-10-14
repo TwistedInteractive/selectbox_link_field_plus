@@ -43,33 +43,46 @@ Class SBLPView_Checkboxes
         $table = new XMLElement('table');
         foreach($options as $optGroup)
         {
-            $tr = new XMLElement('tr');
-            $tr->appendChild(new XMLElement('th', $optGroup['label'], array('colspan'=>2)));
-            $table->appendChild($tr);
-            // Set the sectionname: this is required by the javascript-functions to edit or delete entries.
-            $sectionName = General::createHandle($optGroup['label']);
-            foreach($optGroup['options'] as $option)
+            if(isset($optGroup['label']))
             {
-                $id       = $option[0];
-                $value    = $option[2];
-                // Now this is where the name of the item, including the edit- and delete buttons are rendered:
-                // Please note that the edit- and delete-buttons use javascript functions provided by sbl+ to handle
-                // this functionality. This is done to make sure this extension uses as much native Symphony
-                // functionality as possible:
                 $tr = new XMLElement('tr');
-                $td = new XMLElement('td');
-                if($parent->get('allow_multiple_selection') == 'yes')
-                {
-                    $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id').'[]', $id, 'checkbox'));
-                } else {
-                    $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id'), $id, 'radio'));
-                }
-                $td->appendChild($label);
-                $tr->appendChild($td);
-                $tr->appendChild(new XMLElement('td', '
-                    <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Edit</a>
-                    <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>', array('class' => 'sblp-checkboxes-actions')));
+                $tr->appendChild(new XMLElement('th', $optGroup['label'], array('colspan'=>2)));
                 $table->appendChild($tr);
+                // Set the sectionname: this is required by the javascript-functions to edit or delete entries.
+                $sectionName = General::createHandle($optGroup['label']);
+                // In case of no multiple and not required:
+                if($parent->get('allow_multiple_selection') == 'no' && $parent->get('required') == 'no')
+                {
+                    $tr = new XMLElement('tr');
+                    $td = new XMLElement('td', null, array('colspan'=>2));
+                    $label = Widget::Label('<em>'.__('Select none').'</em>', Widget::Input('sblp-checked-'.$parent->get('id'), 0, 'radio'));
+                    $td->appendChild($label);
+                    $tr->appendChild($td);
+                    $table->appendChild($tr);
+                }
+                foreach($optGroup['options'] as $option)
+                {
+                    $id       = $option[0];
+                    $value    = $option[2];
+                    // Now this is where the name of the item, including the edit- and delete buttons are rendered:
+                    // Please note that the edit- and delete-buttons use javascript functions provided by sbl+ to handle
+                    // this functionality. This is done to make sure this extension uses as much native Symphony
+                    // functionality as possible:
+                    $tr = new XMLElement('tr');
+                    $td = new XMLElement('td');
+                    if($parent->get('allow_multiple_selection') == 'yes')
+                    {
+                        $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id').'[]', $id, 'checkbox'));
+                    } else {
+                        $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id'), $id, 'radio'));
+                    }
+                    $td->appendChild($label);
+                    $tr->appendChild($td);
+                    $tr->appendChild(new XMLElement('td', '
+                        <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Edit</a>
+                        <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>', array('class' => 'sblp-checkboxes-actions')));
+                    $table->appendChild($tr);
+                }
             }
         }
         $checkboxes->appendChild($table);
@@ -92,7 +105,6 @@ Class SBLPView_Checkboxes
             sblp_initview["'.$viewName.'"] = function()
             {
                 var $ = jQuery;
-                var multiple = '.($parent->get('allow_multiple_selection') == 'yes' ? 'true' : 'false').';
                 $("#'.$viewName.' select option:selected").each(function(){
                     $("#'.$viewName.' div.sblp-checkboxes input[value=" + $(this).val() + "]").attr("checked", "checked");
                 });
