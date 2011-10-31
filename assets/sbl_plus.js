@@ -32,7 +32,6 @@ jQuery(function($){
                 // Restore the selected items:
                 $("#" + sblp_currentView + " select").val(selected);
                 // Initialize the view (executes some javascript provided by the view):
-                console.log(typeof sblp_initview[sblp_currentView] != 'undefined');
                 if(typeof sblp_initview[sblp_currentView] != 'undefined') { sblp_initview[sblp_currentView](); }
                 $("#sblp-white").hide();
             });
