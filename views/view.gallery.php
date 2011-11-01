@@ -61,7 +61,7 @@ Class SBLPView_Gallery
                         // In this case, show a message to the user:
                         $alert = true;
                     }
-                    $img = '<img src="/image/2/100/100/5/'.$href.'" alt="thumb" width="100" height="100" />';
+                    $img = '<img src="'.URL.'/image/2/100/100/5/'.$href.'" alt="thumb" width="100" height="100" />';
                     // Now this is where the thumbnail, including the edit- and delete buttons are rendered:
                     // Please note that the edit- and delete-buttons use javascript functions provided by sbl+ to handle
                     // this functionality. This is done to make sure this extension uses as much native Symphony
