@@ -80,8 +80,8 @@ Class SBLPView_Checkboxes
                     $tr->appendChild($td);
                     $tr->appendChild(new XMLElement('td', '
                         <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Edit</a>
-                        <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>', array('class' => 'sblp-checkboxes-actions'),
-                        array('width' => '22%')
+                        <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>',
+                        array('class' => 'sblp-checkboxes-actions', 'width' => '22%')
                     ));
                     $table->appendChild($tr);
                 }
