@@ -1,3 +1,7 @@
+div.field-selectbox_link_plus div.selectbox {
+    display: none;
+}
+
 #sblp-white {
     background: #fff;
     opacity: 0.7;
