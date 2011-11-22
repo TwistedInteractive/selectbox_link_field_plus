@@ -57,7 +57,7 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
                   `show_association` enum('yes','no') NOT NULL default 'yes',
                   `related_field_id` VARCHAR(255) NOT NULL,
                   `limit` int(4) unsigned NOT NULL default '20',
-                  `view` VARCHAR(255) NOT NULL ,
+                  `view` VARCHAR(255) NOT NULL default '',
               PRIMARY KEY  (`id`),
               KEY `field_id` (`field_id`)
             )");
