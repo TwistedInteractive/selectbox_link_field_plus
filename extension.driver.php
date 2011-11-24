@@ -2,7 +2,7 @@
 /**
  * (c) 2011
  * Author: Giel Berkers
- * Date: 10-10-11
+ * Date: 24-11-2011
  * Time: 10:45
  */
 
@@ -15,12 +15,19 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
     {
         return array(
             'name' => 'Field: Select Box Link +',
-            'version' => '1.2',
-            'release-date' => '2011-10-13',
+            'version' => '1.3',
+            'release-date' => '2011-11-24',
             'author' => array(
-                'name' => 'Giel Berkers',
-                'website' => 'http://www.gielberkers.com',
-                'email' => 'info@gielberkers.com'
+            	array(
+	                'name' => 'Giel Berkers',
+	                'website' => 'http://www.gielberkers.com',
+	                'email' => 'info@gielberkers.com'
+	            ),
+            	array(
+            		'name' => 'Vlad Ghita',
+            		'website' => 'http://www.xandergroup.ro',
+            		'email' => 'vlad.ghita@xandergroup.ro'
+            	)
             )
         );
     }
@@ -58,6 +65,7 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
                   `related_field_id` VARCHAR(255) NOT NULL,
                   `limit` int(4) unsigned NOT NULL default '20',
                   `view` VARCHAR(255) NOT NULL ,
+            	  `filter` VARCHAR(255) NOT NULL ,
               PRIMARY KEY  (`id`),
               KEY `field_id` (`field_id`)
             )");
@@ -72,6 +80,18 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
     public function uninstall()
     {
         Symphony::Database()->query("DROP TABLE `tbl_fields_selectbox_link_plus`");
+    }
+    
+    public function update($previous_version){
+    	if( version_compare($previous_version, '1.3', '<') ){
+    		try {
+    			Symphony::Database()->query("ALTER TABLE `tbl_fields_selectbox_link_plus` ADD `filter` VARCHAR(255) NULL DEFAULT NULL");
+    		} catch (Exception $e) {
+    			return false;
+    		}
+    	}
+    	
+    	return true;
     }
 
 }

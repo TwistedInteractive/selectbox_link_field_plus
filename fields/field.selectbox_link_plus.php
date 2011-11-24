@@ -22,21 +22,72 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     public function __construct(&$parent){
         parent::__construct($parent);
         $this->_name = __('Select Box Link +');
-        $this->_required = true;
-        $this->_showassociation = true;
 
-        // Default settings
-        $this->set('show_column', 'no');
-        $this->set('show_association', 'yes');
-        $this->set('required', 'yes');
-        $this->set('limit', 20);
-        $this->set('related_field_id', array());
-
-        if(!isset(self::$em) && class_exists('EntryManager')) {
-            self::$em = new EntryManager(Symphony::Engine());
-        }
+        $this->set('filter', array());
     }
-
+	
+    public function set($field, $value){
+    	if($field == 'related_field_id' && !is_array($value)){
+			$value = explode(',', $value);
+		}
+    	if($field == 'filter' && !is_array($value)){
+    		$value = explode(',', $value);
+    	}
+    	$this->_fields[$field] = $value;
+    }
+    
+    protected function findRelatedValues(array $relation_id = array()) {
+    	$filter_ids = $this->get('filter');
+    	$filtered_entries = array();
+    	
+    	$filters = $this->get('filter');
+    	$filters = array_filter($filters);
+    	
+    	$relation_id = array_unique($relation_id);
+    	
+    	// if filters exist, refine $relation_ids (entries)
+    	if( !empty($filters) ){
+    		$callback = Administration::instance()->getPageCallback();
+    		
+    		$entry_id = null;
+    		
+    		if( $callback['driver'] == 'publish' ){
+    			$entry_id = $callback['context']['entry_id'];
+    		}
+    		elseif( $callback['driver'] == 'preferences' ){
+    			$entry_id = $callback['context'][0];
+    		}
+    		
+    		if( $entry_id != null ){
+	    		foreach( $filters as $filter_id ){
+	    			// get all entries from B that have `relation_id` set to current entry from A
+	    			$query = sprintf("
+	    					SELECT `entry_id`
+	    					FROM `tbl_entries_data_%d`
+	    					WHERE `relation_id` = '%d'
+	    					ORDER BY `entry_id` ASC
+	    					", $filter_id, $entry_id
+	    			);
+	    	
+	    			try {
+	    				$entries_by_relation = Symphony::Database()->fetchCol('entry_id', $query);
+	    			} catch (Exception $e) {}
+	    	
+	    			$filtered_entries = array_merge($filtered_entries, $entries_by_relation);
+	    		}
+	    		
+	    		foreach( $relation_id as $key => $rel_id ){
+	    			if( !in_array($rel_id, $filtered_entries) ){
+	    				unset($relation_id[$key]);
+	    			}
+	    		}
+    		}
+    	}
+    	
+    	// fetch related data as usual
+    	return parent::findRelatedValues($relation_id);
+    }
+    
     /**
      * Display the publish panel
      * @param XMLElement $wrapper
@@ -121,7 +172,7 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     public function displaySettingsPanel(&$wrapper, $errors=NULL){
         // Just load the regular settings panel:
         parent::displaySettingsPanel($wrapper, $errors);
-
+		
         // Add the view-picker:
         $options = array();
         $files = glob(EXTENSIONS.'/selectbox_link_field_plus/views/*.php');
@@ -136,6 +187,80 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         $label = Widget::Label(__('View'));
         $label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][view]', $options));
         $wrapper->insertChildAt(4, $label);
+        
+        
+        // Add the filter for values
+        $options = array();
+        
+        // Set options only if relation_id field is set
+        $related_field_ids = $this->get('related_field_id');
+        if( !empty($related_field_ids) ){
+        	
+        	// Fetch related Sections. Filter field must be part in one of these sections.
+        	foreach( $related_field_ids as $key => $related_field_id ){
+        		$related_field_ids[$key] = sprintf("`id` = '%s'", $related_field_id);
+        	}
+        	
+        	try{
+        		$related_sections_ids = Symphony::Database()->fetchCol('parent_section', "SELECT `parent_section` FROM tbl_fields WHERE ".implode(' OR ', $related_field_ids));
+        		
+        		$filter_fields = array();
+        		
+        		/*
+        		 * Fetch candidate filter fields (field_id + field_label + section_name)
+        		 *
+        		 * These fields are SBL+ and must meet conditions:
+        		 * - parent_section of `related_field_id` => equal to $this_section_id
+        		 * - parent_section of `field_id` => in_array($related_sections_ids)
+        		 */
+        		try{
+        			$query = sprintf("
+        				SELECT t_sblp.`field_id`, t_fs.`label`, t_sblp.`related_field_id`, t_ss.`name`
+        					
+        				FROM (`sym_fields_selectbox_link_plus` AS t_sblp
+        					LEFT JOIN `sym_fields` AS t_fs
+        					ON t_sblp.`field_id` = t_fs.`id`)
+        						LEFT JOIN `sym_sections` AS t_ss
+        						ON t_fs.`parent_section` = t_ss.`id`
+        					
+        				WHERE t_sblp.`field_id` IN (
+        					SELECT `id` FROM `sym_fields` WHERE `parent_section` IN (%s)
+        				)
+        				",
+        				implode(',', $related_sections_ids)
+        			);
+        			
+        			$filter_fields = Symphony::Database()->fetch($query, 'name');
+        		}catch( Exception $e ){}
+        		
+        		$filters = $this->get('filter');
+        		
+        		foreach( array_keys($filter_fields) as $section_name ){
+        			$group = array();
+        			
+        			foreach( $filter_fields as $key => $data){
+        				if( ($section_name == $key) && $this->_matchSectionsFromRelatedFields($data['related_field_id']) ){
+        					$group[] = array($data['field_id'], in_array($data['field_id'], $filters), $data['label']);
+        				}
+        			}
+        			
+        			if( !empty($group) ){
+        				$options[] = array( 'label' => $section_name, 'options' => $group );
+        			}
+        		}
+        	} catch( Exception $e ) {}
+        }
+        
+        $label = Widget::Label(__('Filters for values'));
+        $label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][filter][]', $options, array('multiple' => 'multiple')));
+        if( empty($related_field_ids) ){
+        	$message = __('Options are available only after saving the section.');
+        }
+        else{
+        	$message = __('These filters will determine selectable values. If none selected, all values will be displayed.');
+        }
+        $label->appendChild(new XMLElement('p', $message, array('class' => 'help', 'style' => 'margin: 5px 0 0 0;')));
+        $wrapper->insertChildAt(6, $label);
     }
 
     /**
@@ -151,12 +276,14 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
 
         $fields = array();
         $fields['field_id'] = $id;
-        if($this->get('related_field_id') != '') $fields['related_field_id'] = $this->get('related_field_id');
         $fields['allow_multiple_selection'] = $this->get('allow_multiple_selection') ? $this->get('allow_multiple_selection') : 'no';
         $fields['show_association'] = $this->get('show_association') == 'yes' ? 'yes' : 'no';
         $fields['limit'] = max(1, (int)$this->get('limit'));
+        if($this->get('related_field_id') != '') $fields['related_field_id'] = $this->get('related_field_id');
         $fields['related_field_id'] = implode(',', $this->get('related_field_id'));
         $fields['view'] = $this->get('view');
+        if($this->get('filter') != '') $fields['filter'] = $this->get('filter');
+        $fields['filter'] = implode(',', $this->get('filter'));
 
         Symphony::Database()->query("DELETE FROM `tbl_fields_".$this->handle()."` WHERE `field_id` = '$id'");
 
@@ -169,5 +296,32 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
 
         return true;
     }
-
+	
+    
+    
+    /**
+     * Check if any of related_field_id's parent section is the same as current section.
+     *
+     * @param string $related_field_id - related fields ids
+     *
+     * @return boolean - true if at least one related field id's parent section is the same as current section.
+     */
+    private function _matchSectionsFromRelatedFields($related_field_id){
+    	$this_section_id = Administration::instance()->Page->_context[1];
+    	$related_fields_ids = explode(',', $related_field_id);
+    	
+    	foreach( $related_fields_ids as $field_id ){
+	    	$query = sprintf("
+	    		SELECT `id` FROM `sym_fields`
+	    		WHERE `id` = '%s' AND `parent_section` = '%s'
+	    		LIMIT 1", $field_id, $this_section_id
+	    	);
+	    	
+	    	$validate = Symphony::Database()->fetchVar('id', 0, $query);
+	    	
+	    	if( !empty($validate) ) return true;
+    	}
+    	
+    	return false;
+    }
 }
