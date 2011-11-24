@@ -29,23 +29,23 @@ Created a new view? Share it with us and make this extension better!
 
 Given `Albums` and `Images`; an `Album` can hold many `Images`.
 
-`Images`:
-1. Title (text)
+`Images`:<br />
+1. Title (text)<br />
 2. Image path (upload)
 
-`Albums`
-1. Title (text)
+`Albums`<br />
+1. Title (text)<br />
 2. Images (SBL+ with gallery)
 
 The problem is that not all `Images` should be selectable for all `Albums`. Say an `Album` and think of selecting 2-3 images from a pool of 100+ images ...
 
 1) In `Images` section, add another SBL+ which points to `Albums -> Title`.
 
-`Images`:
-1. Title (text)
-2. Image path (upload)
+`Images`:<br />
+1. Title (text)<br />
+2. Image path (upload)<br />
 3. **Visibility in Albums** (SBL+ with checkboxes(prefferable) / default / etc)
 
-2) For every `Image` entry, choose the `Albums` in which this `Image` will appear.
-3) Go to `Albums` section -> `Images` field settings and set `Filter the values` to `Images -> Visibility for albums`.
+2) For every `Image` entry, choose the `Albums` in which this `Image` will appear.<br />
+3) Go to `Albums` section -> `Images` field settings and set `Filter the values` to `Images -> Visibility for albums`.<br />
 4) Navigate to an `Album` and feel the difference.
