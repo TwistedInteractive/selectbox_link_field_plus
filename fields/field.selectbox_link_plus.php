@@ -50,13 +50,8 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     		
     		// apply filters only if new / edit page
     		if( $callback['driver'] == 'publish'){
-    			if( $callback['context']['page'] == 'new' ){
-    				return array();
-    			}
-    			elseif( $callback['context']['page'] == 'edit' ){
-    				$apply_filters = true;
-    				$entry_id = $callback['context']['entry_id'];
-    			}
+    			$apply_filters = true;
+    			$entry_id = $callback['context']['entry_id'];
     		}
     		// or a Custom Preferences page
     		elseif( $callback['driver'] == 'preferences'  ){
@@ -71,7 +66,11 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     		if( $apply_filters === true && $this->get('use_filter') == 'yes' ){
     			$filters = $this->get('filter');
     			$filters = array_filter($filters);
-    		
+    			
+    			if( $callback['context']['page'] == 'new' ){
+    				return array();
+    			}
+    			
     			// if filters exist, refine $relation_ids (entries)
     			if( !empty($filters) ){
     				$filtered_entries = array();
