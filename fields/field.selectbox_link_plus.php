@@ -13,6 +13,9 @@ require_once(EXTENSIONS.'/selectbox_link_field/fields/field.selectbox_link.php')
 
 Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
 
+	/**
+	 * @var EntryManager
+	 */
     private static $em = null;
 
     /**
@@ -38,27 +41,41 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     
     protected function findRelatedValues(array $relation_id = array()) {
     	$relation_id = array_unique($relation_id);
-    	
-    	if( $this->get('use_filter') == 'yes' ){
-    		$callback = Administration::instance()->getPageCallback();
+		
+    	// make sure we're editing Backend
+    	if( Symphony::Engine() instanceof Administration ){
+    		$callback = Symphony::Engine()->getPageCallback();
+    		$entry_id = null;
+    		$apply_filters = false;
     		
-    		$filters = $this->get('filter');
-    		$filters = array_filter($filters);
-    		
-    		// if filters exist, refine $relation_ids (entries)
-    		if( !empty($filters) ){
-    			$filtered_entries = array();
-    		
-    			$entry_id = null;
-    		
-    			if( $callback['driver'] == 'publish' ){
+    		// apply filters only if new / edit page
+    		if( $callback['driver'] == 'publish'){
+    			if( $callback['context']['page'] == 'new' ){
+    				return array();
+    			}
+    			elseif( $callback['context']['page'] == 'edit' ){
+    				$apply_filters = true;
     				$entry_id = $callback['context']['entry_id'];
     			}
-    			elseif( $callback['driver'] == 'preferences' ){
-    				$entry_id = $callback['context'][0];
-    			}
+    		}
+    		// or a Custom Preferences page
+    		elseif( $callback['driver'] == 'preferences'  ){
+    			$section_id = empty($callback['context'][0]) ? 1 : $callback['context'][0];
+    			$em = new EntryManager(Symphony::Engine());
+    			$entry = $em->fetch(null, $section_id, 1);
+    			
+    			$apply_filters = true;
+    			$entry_id = $entry[0]->get('id');
+    		}
     		
-    			if( $entry_id != null ){
+    		if( $apply_filters === true && $this->get('use_filter') == 'yes' ){
+    			$filters = $this->get('filter');
+    			$filters = array_filter($filters);
+    		
+    			// if filters exist, refine $relation_ids (entries)
+    			if( !empty($filters) ){
+    				$filtered_entries = array();
+    		
     				foreach( $filters as $filter_id ){
     					// get all entries from B that have `relation_id` set to current entry from A
     					$query = sprintf("
@@ -71,7 +88,8 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     		
     					try {
     						$entries_by_relation = Symphony::Database()->fetchCol('entry_id', $query);
-    					} catch (Exception $e) {}
+    					} catch (Exception $e) {
+    					}
     		
     					$filtered_entries = array_merge($filtered_entries, $entries_by_relation);
     				}
@@ -82,14 +100,10 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     					}
     				}
     			}
-    			// new entry. No relations (entry must exist ...)
+    			// no filters set, nothing to display
     			else{
     				return array();
     			}
-    		}
-    		// no filters set, nothing to display
-    		else{
-    			return array();
     		}
     	}
     	
