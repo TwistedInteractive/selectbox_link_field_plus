@@ -45,64 +45,93 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     	// make sure we're editing Backend
     	if( Symphony::Engine() instanceof Administration ){
     		$callback = Symphony::Engine()->getPageCallback();
-    		$entry_id = null;
-    		$apply_filters = false;
     		
-    		// apply filters only if new / edit page
-    		if( $callback['driver'] == 'publish'){
-    			$apply_filters = true;
-    			$entry_id = $callback['context']['entry_id'];
-    		}
-    		// or a Custom Preferences page
-    		elseif( $callback['driver'] == 'preferences'  ){
-    			$section_id = empty($callback['context'][0]) ? 1 : $callback['context'][0];
-    			$em = new EntryManager(Symphony::Engine());
-    			$entry = $em->fetch(null, $section_id, 1);
-    			
-    			$apply_filters = true;
-    			$entry_id = $entry[0]->get('id');
-    		}
+    		$state = 'no filter';
     		
-    		if( $apply_filters === true && $this->get('use_filter') == 'yes' ){
-    			$filters = $this->get('filter');
-    			$filters = array_filter($filters);
-    			
-    			if( $callback['context']['page'] == 'new' ){
-    				return array();
-    			}
-    			
-    			// if filters exist, refine $relation_ids (entries)
-    			if( !empty($filters) ){
-    				$filtered_entries = array();
-    		
-    				foreach( $filters as $filter_id ){
-    					// get all entries from B that have `relation_id` set to current entry from A
-    					$query = sprintf("
-    							SELECT `entry_id`
-    							FROM `tbl_entries_data_%d`
-    							WHERE `relation_id` = '%d'
-    							ORDER BY `entry_id` ASC
-    							", $filter_id, $entry_id
-    					);
-    		
-    					try {
-    						$entries_by_relation = Symphony::Database()->fetchCol('entry_id', $query);
-    					} catch (Exception $e) {
-    					}
-    		
-    					$filtered_entries = array_merge($filtered_entries, $entries_by_relation);
-    				}
-    		
-    				foreach( $relation_id as $key => $rel_id ){
-    					if( !in_array($rel_id, $filtered_entries) ){
-    						unset($relation_id[$key]);
-    					}
+    		if( $callback['driver'] == 'publish' ){
+    			if( $callback['context']['page'] == 'edit' ){
+    				if( $this->get('use_filter') == 'yes' ){
+    					$state = 'apply filters';
     				}
     			}
-    			// no filters set, nothing to display
+    			elseif( $callback['context']['page'] == 'new' ){
+    				if( $this->get('use_filter') == 'yes' ){
+    					$state = 'return empty';
+    				}
+    			}
+    		}
+    		elseif( $callback['driver'] == 'preferences' ){
+    			if( $this->get('use_filter') == 'yes' ){
+    				$state = 'return empty';
+    			}
     			else{
-    				return array();
+    				$state = 'apply filters';
     			}
+    		}
+    		
+    		switch( $state ){
+    			case 'return empty':
+    				return array();
+    			
+    			case 'apply filters':
+    				$filters = $this->get('filter');
+    				$filters = array_filter($filters);
+    				
+    				// if filters exist, refine $relation_ids (entries)
+    				if( !empty($filters) ){
+    					$entry_id = null;
+    				
+    					if( $callback['driver'] == 'publish'){
+    						$entry_id = $callback['context']['entry_id'];
+    					}
+    					elseif( $callback['driver'] == 'preferences'  ){
+    						$section_id = empty($callback['context'][0]) ? 1 : $callback['context'][0];
+    						$em = new EntryManager(Symphony::Engine());
+    						$entry = $em->fetch(null, $section_id, 1);
+    				
+    						$entry_id = $entry[0]->get('id');
+    					}
+    				
+    					if( !empty($entry_id) ){
+    						$filtered_entries = array();
+    				
+    						foreach( $filters as $filter_id ){
+    							// get all entries from B that have `relation_id` set to current entry from A
+    							$query = sprintf("
+    									SELECT `entry_id`
+    									FROM `tbl_entries_data_%d`
+    									WHERE `relation_id` = '%d'
+    									ORDER BY `entry_id` ASC
+    									", $filter_id, $entry_id
+    							);
+    				
+    							try {
+    								$entries_by_relation = Symphony::Database()->fetchCol('entry_id', $query);
+    							} catch (Exception $e) {
+    							}
+    				
+    							$filtered_entries = array_merge($filtered_entries, $entries_by_relation);
+    						}
+    				
+    						foreach( $relation_id as $key => $rel_id ){
+    							if( !in_array($rel_id, $filtered_entries) ){
+    								unset($relation_id[$key]);
+    							}
+    						}
+    					}
+    					else{
+    						return array();
+    					}
+    				}
+    				// no filters set, nothing to display
+    				else{
+    					return array();
+    				}
+    				break;
+    				
+    			case 'no filter':
+    			default:
+    				break;
     		}
     	}
     	
