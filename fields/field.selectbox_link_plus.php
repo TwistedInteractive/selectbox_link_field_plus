@@ -37,50 +37,59 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     }
     
     protected function findRelatedValues(array $relation_id = array()) {
-    	$filter_ids = $this->get('filter');
-    	$filtered_entries = array();
-    	
-    	$filters = $this->get('filter');
-    	$filters = array_filter($filters);
-    	
     	$relation_id = array_unique($relation_id);
     	
-    	// if filters exist, refine $relation_ids (entries)
-    	if( !empty($filters) ){
+    	if( $this->get('use_filter') == 'yes' ){
     		$callback = Administration::instance()->getPageCallback();
     		
-    		$entry_id = null;
+    		$filters = $this->get('filter');
+    		$filters = array_filter($filters);
     		
-    		if( $callback['driver'] == 'publish' ){
-    			$entry_id = $callback['context']['entry_id'];
-    		}
-    		elseif( $callback['driver'] == 'preferences' ){
-    			$entry_id = $callback['context'][0];
-    		}
+    		// if filters exist, refine $relation_ids (entries)
+    		if( !empty($filters) ){
+    			$filtered_entries = array();
     		
-    		if( $entry_id != null ){
-	    		foreach( $filters as $filter_id ){
-	    			// get all entries from B that have `relation_id` set to current entry from A
-	    			$query = sprintf("
-	    					SELECT `entry_id`
-	    					FROM `tbl_entries_data_%d`
-	    					WHERE `relation_id` = '%d'
-	    					ORDER BY `entry_id` ASC
-	    					", $filter_id, $entry_id
-	    			);
-	    	
-	    			try {
-	    				$entries_by_relation = Symphony::Database()->fetchCol('entry_id', $query);
-	    			} catch (Exception $e) {}
-	    	
-	    			$filtered_entries = array_merge($filtered_entries, $entries_by_relation);
-	    		}
-	    		
-	    		foreach( $relation_id as $key => $rel_id ){
-	    			if( !in_array($rel_id, $filtered_entries) ){
-	    				unset($relation_id[$key]);
-	    			}
-	    		}
+    			$entry_id = null;
+    		
+    			if( $callback['driver'] == 'publish' ){
+    				$entry_id = $callback['context']['entry_id'];
+    			}
+    			elseif( $callback['driver'] == 'preferences' ){
+    				$entry_id = $callback['context'][0];
+    			}
+    		
+    			if( $entry_id != null ){
+    				foreach( $filters as $filter_id ){
+    					// get all entries from B that have `relation_id` set to current entry from A
+    					$query = sprintf("
+    							SELECT `entry_id`
+    							FROM `tbl_entries_data_%d`
+    							WHERE `relation_id` = '%d'
+    							ORDER BY `entry_id` ASC
+    							", $filter_id, $entry_id
+    					);
+    		
+    					try {
+    						$entries_by_relation = Symphony::Database()->fetchCol('entry_id', $query);
+    					} catch (Exception $e) {}
+    		
+    					$filtered_entries = array_merge($filtered_entries, $entries_by_relation);
+    				}
+    		
+    				foreach( $relation_id as $key => $rel_id ){
+    					if( !in_array($rel_id, $filtered_entries) ){
+    						unset($relation_id[$key]);
+    					}
+    				}
+    			}
+    			// new entry. No relations (entry must exist ...)
+    			else{
+    				return array();
+    			}
+    		}
+    		// no filters set, nothing to display
+    		else{
+    			return array();
     		}
     	}
     	
@@ -101,7 +110,7 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     public function displayPublishPanel(XMLElement &$wrapper, $data = null, $error = null, $prefix = null, $postfix = null, $entry_id = null) {
         $entry_ids = array();
         $options = array();
-
+        
         if(!is_null($data['relation_id'])){
             if(!is_array($data['relation_id'])){
                 $entry_ids = array($data['relation_id']);
@@ -189,6 +198,22 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         $wrapper->insertChildAt(4, $label);
         
         
+        // Add the checkbox for using filters
+        $div = new XMLElement('div', null, array('class' => 'compact'));
+        
+        $label = Widget::Label();
+        $input = Widget::Input('fields['.$this->get('sortorder').'][use_filter]', 'yes', 'checkbox');
+        if($this->get('use_filter') == 'yes') $input->setAttribute('checked', 'checked');
+        $label->setValue($input->generate() . ' ' . __('Enable filters'));
+        if( $this->get('use_filter') == 'yes' ){
+        	$message = __('Filters are enabled.');
+        }
+        else{
+        	$message = __('Check this to enable filters for entries. Set filters after saving the Section.');
+        }
+        $label->appendChild(new XMLElement('p', $message, array('class' => 'help', 'style' => 'margin: 5px 0 0 0;')));
+        $div->appendChild($label);
+        
         // Add the filter for values
         $options = array();
         
@@ -251,16 +276,22 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         	} catch( Exception $e ) {}
         }
         
-        $label = Widget::Label(__('Filters for values'));
-        $label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][filter][]', $options, array('multiple' => 'multiple')));
+        $select_attributes = array('multiple' => 'multiple');
+        if($this->get('use_filter') != 'yes'){
+        	$select_attributes['disabled'] = 'disabled';
+        }
+        
+        $label = Widget::Label(__('Filters for Values'));
+        $label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][filter][]', $options, $select_attributes));
         if( empty($related_field_ids) ){
-        	$message = __('Options are available only after saving the section.');
+        	$message = __('Options are available only after setting the Values field above and saving the Section.');
         }
         else{
-        	$message = __('These filters will determine selectable values. If none selected, all values will be displayed.');
+        	$message = __('These filters will determine selectable values. If none selected, nothing will be displayed.');
         }
         $label->appendChild(new XMLElement('p', $message, array('class' => 'help', 'style' => 'margin: 5px 0 0 0;')));
-        $wrapper->insertChildAt(6, $label);
+        $div->appendChild($label);
+        $wrapper->insertChildAt(6, $div);
     }
 
     /**
@@ -282,8 +313,14 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         if($this->get('related_field_id') != '') $fields['related_field_id'] = $this->get('related_field_id');
         $fields['related_field_id'] = implode(',', $this->get('related_field_id'));
         $fields['view'] = $this->get('view');
-        if($this->get('filter') != '') $fields['filter'] = $this->get('filter');
-        $fields['filter'] = implode(',', $this->get('filter'));
+        $fields['use_filter'] = $this->get('use_filter') == 'yes' ? 'yes' : 'no';
+        if($fields['use_filter']=='yes'){
+        	if($this->get('filter') != '') $fields['filter'] = $this->get('filter');
+        	$fields['filter'] = implode(',', $this->get('filter'));
+        }
+        else{
+        	$fields['filter'] = '';
+        }
 
         Symphony::Database()->query("DELETE FROM `tbl_fields_".$this->handle()."` WHERE `field_id` = '$id'");
 

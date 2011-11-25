@@ -65,6 +65,7 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
                   `related_field_id` VARCHAR(255) NOT NULL,
                   `limit` int(4) unsigned NOT NULL default '20',
                   `view` VARCHAR(255) NOT NULL ,
+            	  `use_filter` enum('yes','no') NOT NULL default 'no',
             	  `filter` VARCHAR(255) NOT NULL ,
               PRIMARY KEY  (`id`),
               KEY `field_id` (`field_id`)
@@ -85,7 +86,11 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
     public function update($previous_version){
     	if( version_compare($previous_version, '1.3', '<') ){
     		try {
-    			Symphony::Database()->query("ALTER TABLE `tbl_fields_selectbox_link_plus` ADD `filter` VARCHAR(255) NULL DEFAULT NULL");
+    			Symphony::Database()->query("
+    				ALTER TABLE `tbl_fields_selectbox_link_plus`
+    				ADD `use_filter` enum('yes','no') NOT NULL default 'no',
+    				ADD `filter` VARCHAR(255) NULL DEFAULT NULL
+    			");
     		} catch (Exception $e) {
     			return false;
     		}

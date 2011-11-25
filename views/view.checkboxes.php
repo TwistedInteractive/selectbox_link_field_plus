@@ -69,7 +69,7 @@ Class SBLPView_Checkboxes
                     // this functionality. This is done to make sure this extension uses as much native Symphony
                     // functionality as possible:
                     $tr = new XMLElement('tr');
-                    $td = new XMLElement('td');
+                    $td = new XMLElement('td', null, array('width' => '78%'));
                     if($parent->get('allow_multiple_selection') == 'yes')
                     {
                         $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id').'[]', $id, 'checkbox'));
@@ -80,7 +80,7 @@ Class SBLPView_Checkboxes
                     $tr->appendChild($td);
                     $tr->appendChild(new XMLElement('td', '
                         <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Edit</a>
-                        <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>', array('class' => 'sblp-checkboxes-actions')));
+                        <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>', array('class' => 'sblp-checkboxes-actions', 'width' => '22%')));
                     $table->appendChild($tr);
                 }
             }
@@ -92,6 +92,7 @@ Class SBLPView_Checkboxes
         $viewWrapper->appendChild(new XMLElement('style', '
             div.sblp-checkboxes { max-height: 332px; overflow: auto; border: 1px solid #ccc; margin-top: 5px; }
             div.sblp-checkboxes table label { margin: 0; }
+        	div.sblp-checkboxes table { table-layout: auto; }
             div.sblp-checkboxes table td input { float: left; margin-right: 19px; }
             div.sblp-checkboxes table td a { display: none; }
             div.sblp-checkboxes table tr:hover a { display: inline; }

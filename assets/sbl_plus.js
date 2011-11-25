@@ -13,7 +13,7 @@ jQuery(function($){
         var iFrame = document.getElementById('sblp-iframe');
         // Look at the URL to determine if the window should be closed (checks if the string '/edit/' occurs in it).
         var url = iFrame.contentWindow.location.href;
-        if(url.indexOf('/edit/') != -1 && sblp_edit == false)
+        if( url.indexOf('/edit/') != -1 && sblp_edit == false)
         {
             // Entry saved successfully. Close!
             $("#sblp-popup").hide();
@@ -22,10 +22,12 @@ jQuery(function($){
             var selected = $("#" + sblp_currentView + " select").val();
             // Get the ID:
             var a = url.split('/edit/');
-            var a = a[1].split('/');
+            a = a[1].split('/');
             var id= a[0];
             // Prevent an empty array (when no items are selected):
             if(selected == null) { selected = []; }
+            // if checkboxes view and select only one element == radio button
+            else if(!$.isArray(selected)){ selected = [selected]; }
             selected.push(id);
             // Reload the view with native Symphony functionality:
             $("#" + sblp_currentView).load(window.location.href + ' #' + sblp_currentView, function(){
