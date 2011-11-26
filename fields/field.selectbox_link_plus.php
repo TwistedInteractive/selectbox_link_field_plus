@@ -135,6 +135,8 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     		}
     	}
     	
+    	if( empty($relation_id) ) return array();
+    	
     	// fetch related data as usual
     	return parent::findRelatedValues($relation_id);
     }
@@ -297,16 +299,21 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         				implode(',', $related_sections_ids)
         			);
         			
-        			$filter_fields = Symphony::Database()->fetch($query, 'name');
+        			$filter_fields = Symphony::Database()->fetch($query);
         		}catch( Exception $e ){}
+        		
+        		$filters_by_section = array();
+        		foreach( $filter_fields as $data ){
+        			$filters_by_section[$data['name']][] = $data;
+        		}
         		
         		$filters = $this->get('filter');
         		
-        		foreach( array_keys($filter_fields) as $section_name ){
+        		foreach( $filters_by_section as $section_name => $fields ){
         			$group = array();
         			
-        			foreach( $filter_fields as $key => $data){
-        				if( ($section_name == $key) && $this->_matchSectionsFromRelatedFields($data['related_field_id']) ){
+        			foreach( $fields as $key => $data){
+        				if( $this->_matchSectionsFromRelatedFields($data['related_field_id']) ){
         					$group[] = array($data['field_id'], in_array($data['field_id'], $filters), $data['label']);
         				}
         			}
