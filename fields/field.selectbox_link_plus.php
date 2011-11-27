@@ -62,9 +62,6 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     		}
     		elseif( $callback['driver'] == 'preferences' ){
     			if( $this->get('use_filter') == 'yes' ){
-    				$state = 'return empty';
-    			}
-    			else{
     				$state = 'apply filters';
     			}
     		}
