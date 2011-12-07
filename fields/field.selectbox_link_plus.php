@@ -13,11 +13,6 @@ require_once(EXTENSIONS.'/selectbox_link_field/fields/field.selectbox_link.php')
 
 Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
 
-	/**
-	 * @var EntryManager
-	 */
-    private static $em = null;
-
     /**
      * Constructor
      * @param $parent
@@ -54,11 +49,11 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     					$state = 'apply filters';
     				}
     			}
-    			elseif( $callback['context']['page'] == 'new' ){
-    				if( $this->get('use_filter') == 'yes' ){
-    					$state = 'return empty';
-    				}
-    			}
+//     			elseif( $callback['context']['page'] == 'new' ){
+//     				if( $this->get('use_filter') == 'yes' ){
+//     					$state = 'return empty';
+//     				}
+//     			}
     		}
     		elseif( $callback['driver'] == 'preferences' ){
     			if( $this->get('use_filter') == 'yes' ){
@@ -178,21 +173,30 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         if($this->get('allow_multiple_selection') == 'yes') $fieldname .= '[]';
         $label = Widget::Label($this->get('label'));
 
-        // Generate the buttons the create entries in the related sections:
-        $related_fields = $this->get('related_field_id');
-        $related_sections = array();
-        foreach($related_fields as $id)
-        {
-            // get the section:
-            $related_sections[] = Symphony::Database()->fetchRow(0, 'SELECT A.`name`, A.`id`, A.`handle` FROM
-                `tbl_sections` A, `tbl_fields` B  WHERE A.`id` = B.`parent_section` AND B.`id` = '.$id.';');
-        }
         $buttons = new XMLElement('span', null, array('class'=>'sblp-buttons'));
-        foreach($related_sections as $section)
-        {
-            $buttons->appendChild(Widget::Anchor(sprintf(__('Create new entry in "%s"'), $section['name']),
-                URL.'/symphony/publish/'.$section['handle'].'/new/', null,
-                'create button sblp-add'));
+        
+        /* If new Entry (publish -> new) and SBL+ has a filter, disable create related entries buttons
+         * because one cannot set visibility of an Image to current Album since current Album doesn't exist yet.
+         */
+        $callback = Symphony::Engine()->getPageCallback();
+        if( ($callback['driver'] == 'publish') && ($callback['context']['page'] == 'new') && ($this->get('filter') != null) ){
+        	$buttons->appendChild(Widget::Anchor(__('This button is available after saving the entry'), 'javascript:void(0)', null, 'create button'));
+        }
+        // Generate the buttons that create entries in the related sections:
+        else{
+	        $related_fields = $this->get('related_field_id');
+	        $related_sections = array();
+	        foreach($related_fields as $id)
+	        {
+	            // get the section:
+	            $related_sections[] = Symphony::Database()->fetchRow(0, 'SELECT A.`name`, A.`id`, A.`handle` FROM
+	                `tbl_sections` A, `tbl_fields` B  WHERE A.`id` = B.`parent_section` AND B.`id` = '.$id.';');
+	        }
+	        foreach($related_sections as $section)
+	        {
+	            $buttons->appendChild(Widget::Anchor(sprintf(__('Create new entry in "%s"'), $section['name']),
+	                URL.'/symphony/publish/'.$section['handle'].'/new/', null, 'create button sblp-add'));
+	        }
         }
         $label->appendChild($buttons);
 
@@ -212,7 +216,61 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         }
         else $wrapper->appendChild($label);
     }
-
+	
+    /**
+     * Process data from an entry. If filter exists, for each related entry, set visibility to this entry.
+     *
+     * @see fieldSelectBox_Link::processRawFieldData()
+     */
+    public function processRawFieldData($data, &$status, $simulate=false, $entry_id=NULL){
+    	$result = parent::processRawFieldData($data, $status, $simulate, $entry_id);
+    	
+    	$filters = $this->get('filter');
+    	
+    	// if this field has a filter applied to entries, set related Entries visibility to this Entry
+    	if( is_array($filters) && !empty($filters) ){
+    		
+    		foreach( $filters as $filter ){
+    			
+    			if( !empty($filter) ){
+    				// get the related_field_id for filter field
+    				$related_section_id = Symphony::Database()->fetchVar('parent_section', 0, sprintf("SELECT `parent_section` FROM `sym_fields` WHERE `id` = '%d' LIMIT 1", $filter));
+    				
+    				$em = new EntryManager(Symphony::Engine());
+    				$related_entries = $em->fetch($result['relation_id'], $related_section_id, null, null, null, null, true, true);
+    				
+    				foreach( $related_entries as $entry ){
+    					// get current visibility relations
+    					$related_field_data = $entry->getData($filter);
+    					
+    					// add this entry to the relations
+    					$new_field_data = array();
+    					
+    					if( !empty($related_field_data) ){
+    						if( !is_array($related_field_data['relation_id']) ){
+    							$new_field_data['relation_id'][] = $related_field_data['relation_id'];
+    						}
+    						else{
+    							$new_field_data = $related_field_data;
+    						}
+    					}
+    					else{
+    						$new_field_data['relation_id'] = array();
+    					}
+    					
+    					if( !in_array($entry_id, $new_field_data['relation_id']) ){
+    						$new_field_data['relation_id'][] = $entry_id;
+    						$entry->setData($filter, $new_field_data);
+    						$entry->commit();
+    					}
+    				}
+    			}
+    		}
+    	}
+    	
+    	return $result;
+    }
+    
     /**
      * Display the settings panel
      * @param $wrapper
