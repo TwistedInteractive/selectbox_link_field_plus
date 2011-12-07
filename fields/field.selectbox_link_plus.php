@@ -49,11 +49,6 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     					$state = 'apply filters';
     				}
     			}
-//     			elseif( $callback['context']['page'] == 'new' ){
-//     				if( $this->get('use_filter') == 'yes' ){
-//     					$state = 'return empty';
-//     				}
-//     			}
     		}
     		elseif( $callback['driver'] == 'preferences' ){
     			if( $this->get('use_filter') == 'yes' ){
