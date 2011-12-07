@@ -28,7 +28,7 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     	if($field == 'related_field_id' && !is_array($value)){
 			$value = explode(',', $value);
 		}
-    	if($field == 'filter' && !is_array($value)){
+    	if($field == 'filter' && !is_array($value) && !empty($value)){
     		$value = explode(',', $value);
     	}
     	$this->_fields[$field] = $value;
@@ -174,7 +174,8 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
          * because one cannot set visibility of an Image to current Album since current Album doesn't exist yet.
          */
         $callback = Symphony::Engine()->getPageCallback();
-        if( ($callback['driver'] == 'publish') && ($callback['context']['page'] == 'new') && ($this->get('filter') != null) ){
+        $filter = $this->get('filter');
+        if( ($callback['driver'] == 'publish') && ($callback['context']['page'] == 'new') && !empty($filter) ){
         	$buttons->appendChild(Widget::Anchor(__('This button is available after saving the entry'), 'javascript:void(0)', null, 'create button'));
         }
         // Generate the buttons that create entries in the related sections:
@@ -226,7 +227,6 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     	if( is_array($filters) && !empty($filters) ){
     		
     		foreach( $filters as $filter ){
-    			
     			if( !empty($filter) ){
     				// get the related_field_id for filter field
     				$related_section_id = Symphony::Database()->fetchVar('parent_section', 0, sprintf("SELECT `parent_section` FROM `sym_fields` WHERE `id` = '%d' LIMIT 1", $filter));
