@@ -224,7 +224,7 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
     	$filters = $this->get('filter');
     	
     	// if this field has a filter applied to entries, set related Entries visibility to this Entry
-    	if( is_array($filters) && !empty($filters) ){
+    	if( is_array($filters) && !empty($filters) && is_aray($result['relation_id']) && !empty($result['relation_id']) ){
     		
     		foreach( $filters as $filter ){
     			if( !empty($filter) ){
