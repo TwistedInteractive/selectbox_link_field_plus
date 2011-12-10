@@ -358,6 +358,9 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         		}
         		
         		$filters = $this->get('filter');
+        		if( empty($filters) ){
+        			$filters = array();
+        		}
         		
         		foreach( $filters_by_section as $section_name => $fields ){
         			$group = array();
