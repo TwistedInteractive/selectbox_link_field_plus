@@ -66,7 +66,7 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
                   `limit` int(4) unsigned NOT NULL default '20',
                   `view` VARCHAR(255) NOT NULL ,
             	  `use_filter` enum('yes','no') NOT NULL default 'no',
-            	  `filter` VARCHAR(255) NOT NULL ,
+            	  `filter` VARCHAR(255) NULL ,
               PRIMARY KEY  (`id`),
               KEY `field_id` (`field_id`)
             )");
