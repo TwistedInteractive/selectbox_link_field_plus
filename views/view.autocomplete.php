@@ -155,7 +155,7 @@ Class SBLPView_Autocomplete
         
 		// Append styles for view
 
-        Administration::instance()->Page->addScriptToHead(URL.'/extensions/selectbox_link_field_plus/views/assets/view.autocomplete.js');
-        Administration::instance()->Page->addStylesheetToHead(URL.'/extensions/selectbox_link_field_plus/views/assets/view.autocomplete.css');        
+        Administration::instance()->Page->addScriptToHead(URL.'/extensions/selectbox_link_field_plus/assets/view.autocomplete.js');
+        Administration::instance()->Page->addStylesheetToHead(URL.'/extensions/selectbox_link_field_plus/assets/view.autocomplete.css');        
     }
 }
