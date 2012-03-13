@@ -82,7 +82,7 @@ Class SBLPView_Gallery
                 box-shadow: 0 2px 6px rgba(0, 0, 0, .5); margin-right: 5px; margin-bottom: 5px;
                 font-size: 10px; cursor: pointer; position: relative;
             }
-            div.sblp-gallery { border: 1px solid #eee; padding: 10px; padding-right: 0; float: left; margin-top: 5px;
+            div.sblp-gallery { border: 1px solid #eee; padding: 10px; padding-right: 0; margin-top: 5px;
                 box-shadow: 2px 2px 6px rgba(0, 0, 0, 1) inset; background: #333; overflow: auto; max-height: 548px;
                 border: 1px solid #ccc; }
             div.sblp-gallery h3 { font-size: 16px; margin-bottom: 10px; color: #fff; text-shadow: none; }

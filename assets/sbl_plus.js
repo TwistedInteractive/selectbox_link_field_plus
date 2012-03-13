@@ -25,7 +25,7 @@ jQuery(function($){
             var a = a[1].split('/');
             var id= a[0];
             // Prevent an empty array (when no items are selected):
-            if(selected == null) { selected = []; }
+            if(!$.isArray(selected)) { selected = [selected]; }
             selected.push(id);
             // Reload the view with native Symphony functionality:
             $("#" + sblp_currentView).load(window.location.href + ' #' + sblp_currentView, function(){
