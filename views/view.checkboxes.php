@@ -20,10 +20,14 @@ Class SBLPView_Checkboxes
 
     /**
      * This function generates the view on the publish page
-     * @param $viewWrapper  The XMLElement wrapper in which the view is placed
-     * @param $fieldname    The name of the field
-     * @param $options      The options
-     * @param $parent       The parent element (this is the Field itself)
+     * @param $viewWrapper
+	 * 	The XMLElement wrapper in which the view is placed
+     * @param $fieldname
+	 * 	The name of the field
+     * @param $options
+	 * 	The options
+     * @param $parent
+	 * 	The parent element (this is the Field itself)
      * @return void
      */
     public function generateView(&$viewWrapper, $fieldname, $options, $parent)
@@ -40,25 +44,19 @@ Class SBLPView_Checkboxes
 
         // Show checkboxes:
         $checkboxes = new XMLElement('div', null, array('class'=>'sblp-checkboxes'));
-        $table = new XMLElement('table');
         foreach($options as $optGroup)
         {
+            $container = new XMLElement('div', null, array('class'=>'container'));
             if(isset($optGroup['label']))
             {
-                $tr = new XMLElement('tr');
-                $tr->appendChild(new XMLElement('th', $optGroup['label'], array('colspan'=>2)));
-                $table->appendChild($tr);
+                $container->appendChild(new XMLElement('h3', $optGroup['label']));
                 // Set the sectionname: this is required by the javascript-functions to edit or delete entries.
                 $sectionName = General::createHandle($optGroup['label']);
                 // In case of no multiple and not required:
                 if($parent->get('allow_multiple_selection') == 'no' && $parent->get('required') == 'no')
                 {
-                    $tr = new XMLElement('tr');
-                    $td = new XMLElement('td', null, array('colspan'=>2));
                     $label = Widget::Label('<em>'.__('Select none').'</em>', Widget::Input('sblp-checked-'.$parent->get('id'), 0, 'radio'));
-                    $td->appendChild($label);
-                    $tr->appendChild($td);
-                    $table->appendChild($tr);
+                    $container->appendChild($label);
                 }
                 foreach($optGroup['options'] as $option)
                 {
@@ -68,26 +66,24 @@ Class SBLPView_Checkboxes
                     // Please note that the edit- and delete-buttons use javascript functions provided by sbl+ to handle
                     // this functionality. This is done to make sure this extension uses as much native Symphony
                     // functionality as possible:
-                    $tr = new XMLElement('tr');
-                    $td = new XMLElement('td', null, array('width' => '78%'));
                     if($parent->get('allow_multiple_selection') == 'yes')
                     {
                         $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id').'[]', $id, 'checkbox'));
                     } else {
                         $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id'), $id, 'radio'));
                     }
-                    $td->appendChild($label);
-                    $tr->appendChild($td);
-                    $tr->appendChild(new XMLElement('td', '
+                    $label->appendChild(new XMLElement('span', '
                         <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Edit</a>
                         <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>',
                         array('class' => 'sblp-checkboxes-actions', 'width' => '22%')
                     ));
-                    $table->appendChild($tr);
+                    $container->appendChild($label);
+                    // $table->appendChild($tr);
                 }
             }
+            $checkboxes->appendChild($container);
         }
-        $checkboxes->appendChild($table);
+
         $viewWrapper->appendChild($checkboxes);
 
         // CSS:

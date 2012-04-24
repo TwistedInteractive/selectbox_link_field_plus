@@ -20,10 +20,14 @@ Class SBLPView_Default
 
     /**
      * This function generates the view on the publish page
-     * @param $viewWrapper  The XMLElement wrapper in which the view is placed
-     * @param $fieldname    The name of the field
-     * @param $options      The options
-     * @param $parent       The parent element (this is the Field itself)
+     * @param $viewWrapper
+	 * 	The XMLElement wrapper in which the view is placed
+     * @param $fieldname
+	 * 	The name of the field
+     * @param $options
+	 * 	The options
+     * @param $parent
+	 * 	The parent element (this is the Field itself)
      * @return void
      */
     public function generateView(&$viewWrapper, $fieldname, $options, $parent)

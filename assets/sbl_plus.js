@@ -26,7 +26,7 @@ jQuery(function($){
             var id= a[0];
             // Prevent an empty array (when no items are selected):
             if(selected == null) { selected = []; }
-            if(typeof selected == 'string') { selected = [selected]; }
+			if(typeof selected == 'string') { selected = [selected]; }
             selected.push(id);
             // Reload the view with native Symphony functionality:
             $("#" + sblp_currentView).load(window.location.href + ' #' + sblp_currentView, function(){
@@ -114,4 +114,99 @@ function sblp_deleteEntry(viewName, sectionHandle, id)
     } else {
         jQuery("#sblp-white").hide();
     }
+}
+
+/**
+ * Sort the hidden selectbox according to the sorted elements
+ * @param viewName          The name of the view.
+ * @param sourceList        A jQuery-object, containing all elements that are sortables.
+ * @param attributeName     The name of the attribute in the sortables that is used to store the elements' id.
+ */
+function sblp_sortItems(viewName, sourceList, attributeName, save)
+{
+    var $ = jQuery;
+    save = save == null ? true : save;
+    // Options are in a optgroup
+    // Remove the options first from the optgroup
+    var options = [];
+    $("#" + viewName + " select option").each(function(){
+        options[$(this).val()] = $(this).remove();
+    });
+    // Re-arange them according to the sourceList:
+    var ids = [];
+    $("#" + viewName + " select").html('');
+    sourceList.each(function(){
+        var id = $(this).attr(attributeName);
+        ids.push(id);
+        $("#" + viewName + " select").append(options[id]);
+    });
+    // Post an AJAX-call to store the state for editing purposes only:
+    // console.log(save);
+    if(save)
+    {
+        $.post(Symphony.WEBSITE + '/symphony/extension/selectbox_link_field_plus/', {
+            id: sblp_getEntryIDFromURL(),
+            order: ids.join(',')
+        });
+    }
+}
+
+/**
+ * Load the sorting order
+ * @param viewName              The name of the view
+ * @param sourceListSelector    The selector for the sortable elements
+ * @param attributeName         The name of the attribute in the sortables that is used to store the elements' id.
+ */
+function sblp_loadSorting(viewName, sourceListSelector, attributeName)
+{
+    var $ = jQuery;
+    // First of all, get the ids:
+    var entryID = sblp_getEntryIDFromURL();
+    $.get(Symphony.WEBSITE + '/symphony/extension/selectbox_link_field_plus/', {
+        get: entryID
+    }, function(data){
+        var ids = String(data).split(',');
+        // Now we have an array with all the IDs in the correct order. Now sort each container individually:
+        var elements = [];
+        $(sourceListSelector).each(function(){
+            var id = $(this).attr(attributeName);
+            elements[id] = [$(this).parent(), $(this).detach()];
+        });
+        // Now re-attach the items, according to the ids-array:
+        for(var i=0, l=ids.length; i<l; i++)
+        {
+            if(elements[ids[i]] != undefined)
+            {
+                elements[ids[i]][0].append(elements[ids[i]][1]);
+                elements[ids[i]] = undefined;
+            }
+        }
+        // Last but not least, re-attach the items that have not been attached, to prevent later created items
+        // from not being shown:
+        for(i=0, l=elements.length; i<l; i++)
+        {
+            if(elements[i] != undefined)
+            {
+                elements[i][0].append(elements[i][1]);
+            }
+        }
+        // Also re-arange the options list:
+        sblp_sortItems(viewName, $(sourceListSelector), attributeName, entryID != 0);
+    });
+}
+
+/**
+ * Get the Entry ID according to the URL.
+ * If no ID is found (which is the case with new entries) '0' is returned.
+ */
+function sblp_getEntryIDFromURL()
+{
+    var entryID = String(window.location).split('/edit/');
+    if(entryID.length == 2)
+    {
+        entryID = entryID[1].split('/')[0];
+    } else {
+        entryID = 0;
+    }
+    return entryID;
 }
