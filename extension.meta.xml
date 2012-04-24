@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="selectbox_link_field_plus" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
+	<name>Selectbox Link Field Plus</name>
+	<description>Linking sections with ease</description>
+	<repo type="github">https://github.com/kanduvisla/selectbox_link_field_plus</repo>
+	<url type="discuss">http://symphony-cms.com/discuss/thread/78758/</url>
+	<types>
+		<type>Field Types</type>
+	</types>
+	<authors>
+		<author>
+			<name github="kanduvisla" symphony="kanduvisla">Giel Berkers</name>
+			<website>http://www.gielberkers.com</website>
+		</author>
+	</authors>
+	<media>
+		<item type="image" url="http://symphonyextensions.com/kanduvisla/selectbox_link_field_plus/media/selectbox_link_field_plus.jpg">Selectbox Link Field Plus: Linking sections with ease</item>
+	</media>
+	<releases>
+		<release version="1.2" date="2011-10-13" min="2.2.3" />
+		<release version="1.3" date="2012-04-24" min="2.2.3" />
+	</releases>
+</extension>
