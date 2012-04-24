@@ -149,7 +149,8 @@ Class SBLPView_Checkboxes
                 	if($(this).attr("checked"))
                 	{
                 		// Only show the created items:
-                		$("#'.$viewName.' label").not("input:checked").hide();
+                		$("#'.$viewName.' label").hide();
+                		$("#'.$viewName.' label:has(input:checked)").show();
                 		for(var i in created)
                 		{
                 			$("#'.$viewName.' label[rel="+created[i]+"]").show();
