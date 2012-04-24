@@ -49,7 +49,7 @@ Class SBLPView_Checkboxes
             $container = new XMLElement('div', null, array('class'=>'container'));
             if(isset($optGroup['label']))
             {
-                $container->appendChild(new XMLElement('h3', $optGroup['label']));
+                $container->appendChild(new XMLElement('h3', $optGroup['label'].' <em>(drag to reorder)</em>'));
 
 				// Show created / hide others:
 				$label = new XMLElement('span', null, array('class'=>'hide-others'));
@@ -102,6 +102,7 @@ Class SBLPView_Checkboxes
             div.sblp-checkboxes { max-height: 332px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc;
             	margin-top: 5px; position: relative; }
             div.sblp-checkboxes h3 { padding: 5px; }
+            div.sblp-checkboxes h3 em { font-size: 10px; font-weight: normal; font-style: normal; }
             div.sblp-checkboxes label { margin: 0; padding: 5px; border-bottom: 1px solid #ccc; position: relative; }
             div.sblp-checkboxes label input { float: left; }
             div.sblp-checkboxes span.text { display: block; margin-left: 20px; }

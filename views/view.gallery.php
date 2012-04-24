@@ -51,7 +51,7 @@ Class SBLPView_Gallery
             $container = new XMLElement('div', null, array('class'=>'container'));
             if(isset($optGroup['label']))
             {
-                $container->appendChild(new XMLElement('h3', $optGroup['label']));
+                $container->appendChild(new XMLElement('h3', $optGroup['label'].' <em>(drag to reorder)</em>'));
 				$label = Widget::Label();
 				$checked = $parent->get('show_created') == 1 ? array('checked'=>'checked') : array();
 				$input = Widget::Input('show_created', null, 'checkbox', $checked);
@@ -99,6 +99,7 @@ Class SBLPView_Gallery
                 box-shadow: 2px 2px 6px rgba(0, 0, 0, 1) inset; background: #333; overflow: auto; max-height: 548px;
                 border: 1px solid #ccc; position: relative; width: 100%; }
             div.sblp-gallery h3 { font-size: 16px; margin-bottom: 10px; color: #fff; text-shadow: none; }
+            div.sblp-gallery h3 em { font-size: 10px; font-weight: normal; font-style: normal; }
             div.sblp-gallery span { float: right; }
             div.sblp-gallery div.container { clear: both; }
             div.sblp-gallery div.selected { outline: 5px solid #81b934; background: #81b934; }
