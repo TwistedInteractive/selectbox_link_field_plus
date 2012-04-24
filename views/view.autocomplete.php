@@ -18,10 +18,14 @@ Class SBLPView_Autocomplete
 
     /**
      * This function generates the view on the publish page
-     * @param $viewWrapper  The XMLElement wrapper in which the view is placed
-     * @param $fieldname    The name of the field
-     * @param $options      The options
-     * @param $parent       The parent element (this is the Field itself)
+     * @param $viewWrapper
+	 *  The XMLElement wrapper in which the view is placed
+     * @param $fieldname
+	 *  The name of the field
+     * @param $options
+	 *  The options
+     * @param $parent
+	 *  The parent element (this is the Field itself)
      * @return void
      */
     public function generateView(&$viewWrapper, $fieldname, $options, $parent)
@@ -40,67 +44,76 @@ Class SBLPView_Autocomplete
 
         // Show checkboxes:
         $checkboxes = new XMLElement('div', null, array('class'=>'sblp-checkboxes'));
-        $table = new XMLElement('table');
         foreach($options as $optGroup)
         {
+			$container = new XMLElement('div', null, array('class'=>'container'));
             if(isset($optGroup['label']))
             {
-                $tr = new XMLElement('tr');
-                $tr->appendChild(new XMLElement('th', $optGroup['label'], array('colspan'=>2)));
-                $table->appendChild($tr);
+				$container->appendChild(new XMLElement('h3', $optGroup['label'].' <em>(drag to reorder)</em>'));
+
+				// Show created / hide others:
+				$label = new XMLElement('span', null, array('class'=>'hide-others'));
+				$checked = $parent->get('show_created') == 1 ? array('checked'=>'checked') : array();
+				$input = Widget::Input('show_created', null, 'checkbox', $checked);
+				$label->setValue(__('%s hide others', array($input->generate())));
+				$container->appendChild($label);
+
                 // Set the sectionname: this is required by the javascript-functions to edit or delete entries.
                 $sectionName = General::createHandle($optGroup['label']);
                 // In case of no multiple and not required:
                 if($parent->get('allow_multiple_selection') == 'no' && $parent->get('required') == 'no')
                 {
-                    $tr = new XMLElement('tr');
-                    $td = new XMLElement('td', null, array('colspan'=>2));
                     $label = Widget::Label('<em>'.__('Select none').'</em>', Widget::Input('sblp-checked-'.$parent->get('id'), 0, 'radio'));
-                    $td->appendChild($label);
-                    $tr->appendChild($td);
-                    $table->appendChild($tr);
+					$container->appendChild($label);
                 }
                 foreach($optGroup['options'] as $option)
                 {
                     $id       = $option[0];
-                    $value    = $option[2];
+					$value    = strip_tags(html_entity_decode($option[2]));
                     // Now this is where the name of the item, including the edit- and delete buttons are rendered:
                     // Please note that the edit- and delete-buttons use javascript functions provided by sbl+ to handle
                     // this functionality. This is done to make sure this extension uses as much native Symphony
                     // functionality as possible:
-                    $tr = new XMLElement('tr', null, array('style' => 'display: none;'));
-                    $td = new XMLElement('td', null, array('width' => '78%'));
+					$label = Widget::Label();
                     if($parent->get('allow_multiple_selection') == 'yes')
                     {
-                        $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id').'[]', $id, 'checkbox'));
+                        $input = Widget::Input('sblp-checked-'.$parent->get('id').'[]', $id, 'checkbox');
                     } else {
-                        $label = Widget::Label($value, Widget::Input('sblp-checked-'.$parent->get('id'), $id, 'radio'));
+						$input = Widget::Input('sblp-checked-'.$parent->get('id'), $id, 'radio');
                     }
-                    $td->appendChild($label);
-                    $tr->appendChild($td);
-                    $tr->appendChild(new XMLElement('td', '
+					$label->setValue(__('%s <span class="text">%s</span>', array($input->generate(), $value)));
+					$label->setAttribute('title', $value);
+					$label->setAttribute('rel', $id);
+                    $label->appendChild(new XMLElement('span', '
                         <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Edit</a>
                         <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>',
-                        array('class' => 'sblp-checkboxes-actions', 'width' => '22%')
+                        array('class' => 'sblp-checkboxes-actions')
                     ));
-                    $table->appendChild($tr);
+					$container->appendChild($label);
                 }
             }
+			$checkboxes->appendChild($container);
         }
-        $checkboxes->appendChild($table);
+
         $viewWrapper->appendChild($checkboxes);
 
         // CSS:
         $viewWrapper->appendChild(new XMLElement('style', '
-            div.sblp-checkboxes { max-height: 332px; overflow: auto; border: 1px solid #ccc; margin-top: 5px; }
-            div.sblp-checkboxes table { table-layout: auto; }
-            div.sblp-checkboxes table label { margin: 0; }
-            div.sblp-checkboxes table td input { float: left; margin-right: 19px; }
-            div.sblp-checkboxes table td a { display: none; }
-            div.sblp-checkboxes table tr:hover a { display: inline; }
-            div.sblp-checkboxes table td.sblp-checkboxes-actions { text-align: right; }
+            div.sblp-checkboxes { max-height: 332px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc;
+            	margin-top: 5px; position: relative; }
+            div.sblp-checkboxes h3 { padding: 5px; }
+            div.sblp-checkboxes h3 em { font-size: 10px; font-weight: normal; font-style: normal; }
+            div.sblp-checkboxes label { margin: 0; padding: 5px; border-bottom: 1px solid #ccc; position: relative; }
+            div.sblp-checkboxes label input { float: left; }
+            div.sblp-checkboxes span.text { display: block; margin-left: 20px; }
+            div.sblp-checkboxes label .sblp-checkboxes-actions { display: none; position: absolute; right: 0; top: 0;
+            	background: #fff; padding: 5px;}
+            div.sblp-checkboxes label:hover .sblp-checkboxes-actions { display: inline; }
+            div.sblp-checkboxes span.hide-others { position: absolute; top: 5px; right: 5px; }
             #sblp-view-'.$parent->get('id').' select { display: none; }
         ', array('type'=>'text/css')));
+
+		$createdIDs = $parent->getCreatedEntryIds();
 
         // Javascript should be placed inside an sblp_initview[$viewName]()-function, to make sure it gets executed whenever the view
         // reloads with AJAX. This happens when an entry gets added, edited or deleted:
@@ -108,6 +121,9 @@ Class SBLPView_Autocomplete
             sblp_initview["'.$viewName.'"] = function()
             {
                 var $ = jQuery;
+                var created = ['.implode(',', $createdIDs).'];
+				var multiple = '.($parent->get('allow_multiple_selection') == 'yes' ? 'true' : 'false').';
+
                 $("#'.$viewName.' select option:selected").each(function(){
                 
                 	var option = $("#'.$viewName.' div.sblp-checkboxes input[value=" + $(this).val() + "]");
@@ -150,6 +166,36 @@ Class SBLPView_Autocomplete
 						
 						jQuery(this).val("");
 				});
+
+                if(multiple)
+                {
+                    // Load the sorting order-state:
+                    sblp_loadSorting("'.$viewName.'", "#'.$viewName.' label", "rel");
+
+                    $("#'.$viewName.' div.sblp-checkboxes div.container").sortable({items: "label", update: function(){
+                        // Update the option list according to the label items:
+                        sblp_sortItems("'.$viewName.'", $("#'.$viewName.' label"), "rel");
+                    }});
+		            $("#'.$viewName.'").disableSelection();
+                }
+
+                // Hide others:
+                $("#'.$viewName.' input[name=show_created]").change(function(){
+                	if($(this).attr("checked"))
+                	{
+                		// Only show the created items:
+                		$("#'.$viewName.' label").hide();
+                		$("#'.$viewName.' label:has(input:checked)").show();
+                		for(var i in created)
+                		{
+                			$("#'.$viewName.' label[rel="+created[i]+"]").show();
+                		}
+                	} else {
+                		// Show everything:
+                		$("#'.$viewName.' label").show();
+                	}
+                }).change();
+
             };
         ', array('type'=>'text/javascript')));
         

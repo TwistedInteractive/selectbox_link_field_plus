@@ -40,6 +40,10 @@
   color: white;
 }
 
+.sblp_autocomplete_over a {
+	color: white;
+}
+
 .sblp_autocomplete_list {
   width: 100%;
   padding: 0;
