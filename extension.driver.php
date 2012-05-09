@@ -10,23 +10,6 @@ require_once(EXTENSIONS.'/selectbox_link_field/extension.driver.php');
 
 Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
 {
-    /**
-     * Extension information
-     * @return array
-     */
-    public function about()
-    {
-        return array(
-            'name' => 'Field: Select Box Link +',
-            'version' => '1.3',
-            'release-date' => '2011-12-06',
-            'author' => array(
-                'name' => 'Giel Berkers',
-                'website' => 'http://www.gielberkers.com',
-                'email' => 'info@gielberkers.com'
-            )
-        );
-    }
 
     /**
      * Get the subscribed delegates
@@ -44,7 +27,12 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
                 'page' => '/publish/',
                 'delegate' => 'Delete',
                 'callback' => '__entryDelete'
-            )
+            ),
+	        array(
+		        'page' => '/publish/new/',
+		        'delegate' => 'EntryPostCreate',
+		        'callback' => '__linkCreatedEntry'
+	        )
         );
     }
 
@@ -74,9 +62,29 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
     {
         foreach($context['entry_id'] as $id)
         {
-            Symphony::Database()->query('DELETE FROM `tbl_sblp_sortorder` WHERE `entry_id` = '.$id.';');
+            // Delete sorting order information:
+	        Symphony::Database()->delete('tbl_sblp_sortorder', '`entry_id` = '.$id);
+	        // Delete references to created entries:
+	        Symphony::Database()->delete('tbl_sblp_created', '`created_id` = '.$id);
+	        Symphony::Database()->delete('tbl_sblp_created', '`entry_id` = '.$id);
         }
     }
+
+	/**
+	 * When an entry is created, check if there is a parent set and store it if so:
+	 * @param $context
+	 */
+	public function __linkCreatedEntry($context)
+	{
+		$entry = $context['entry'];
+		/* @var $entry Entry */
+		if(isset($_POST['sblp_parent']))
+		{
+			Symphony::Database()->insert(
+				array('entry_id' => intval($_POST['sblp_parent']), 'created_id' => $entry->get('id')), 'tbl_sblp_created'
+			);
+		}
+	}
 
     /**
      * Install the extension

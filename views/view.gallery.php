@@ -51,10 +51,11 @@ Class SBLPView_Gallery
             $container = new XMLElement('div', null, array('class'=>'container'));
             if(isset($optGroup['label']))
             {
-                $container->appendChild(new XMLElement('h3', $optGroup['label'].' <em>(drag to reorder)</em>'));
+	            $suffix = $parent->get('allow_multiple_selection') == 'yes' ? ' <em>'.__('(drag to reorder)').'</em>' : '';
+                $container->appendChild(new XMLElement('h3', $optGroup['label'].$suffix));
 				$label = Widget::Label();
-				$checked = $parent->get('show_created') == 1 ? array('checked'=>'checked') : array();
-				$input = Widget::Input('show_created', null, 'checkbox', $checked);
+				// $checked = $parent->get('show_created') == 1 ? array('checked'=>'checked') : array();
+				$input = Widget::Input('show_created', null, 'checkbox');
 				$label->setValue(__('%s hide others', array($input->generate())));
 				$container->appendChild($label);
 
@@ -110,20 +111,17 @@ Class SBLPView_Gallery
             div.sblp-gallery a.delete { left: '.($thumbSize - 20).'px; background: #b93434; }
             div.sblp-gallery div.image:hover a.edit, div.sblp-gallery div.image:hover a.delete { display: block; }
             #'.$viewName.' select { display: none; }
-            div.sblp-gallery label { position: absolute; top: 0; right: 10px; color: #fff; }
+            div.sblp-gallery label { position: absolute; top: 15px; right: 10px; color: #fff; }
         ', array('type'=>'text/css')));
 
         // JavaScript:
         // Javascript should be placed inside an sblp_initview[$viewName]()-function, to make sure it gets executed whenever the view
         // reloads with AJAX. This happens when an entry gets added, edited or deleted:
 
-		$createdIDs = $parent->getCreatedEntryIds();
-
         $viewWrapper->appendChild(new XMLElement('script', '
             sblp_initview["'.$viewName.'"] = function()
             {
                 var $ = jQuery;
-                var created = ['.implode(',', $createdIDs).'];
                 var multiple = '.($parent->get('allow_multiple_selection') == 'yes' ? 'true' : 'false').';
                 $("#'.$viewName.' div.sblp-gallery div.image a.thumb").click(function(e){
                     var id = $(this).parent().attr("rel");
@@ -161,12 +159,8 @@ Class SBLPView_Gallery
                 $("#'.$viewName.' input[name=show_created]").change(function(){
                 	if($(this).attr("checked"))
                 	{
-                		// Only show the created items:
+                		// Only show the selected items:
                 		$("#'.$viewName.' div.image").not(".selected").hide();
-                		for(var i in created)
-                		{
-                			$("#'.$viewName.' div.image[rel="+created[i]+"]").show();
-                		}
                 	} else {
                 		// Show everything:
                 		$("#'.$viewName.' div.image").show();
