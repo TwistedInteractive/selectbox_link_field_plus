@@ -49,12 +49,13 @@ Class SBLPView_Checkboxes
             $container = new XMLElement('div', null, array('class'=>'container'));
             if(isset($optGroup['label']))
             {
-                $container->appendChild(new XMLElement('h3', $optGroup['label'].' <em>(drag to reorder)</em>'));
+	            $suffix = $parent->get('allow_multiple_selection') == 'yes' ? ' <em>'.__('(drag to reorder)').'</em>' : '';
+                $container->appendChild(new XMLElement('h3', $optGroup['label'].$suffix));
 
 				// Show created / hide others:
 				$label = new XMLElement('span', null, array('class'=>'hide-others'));
-				$checked = $parent->get('show_created') == 1 ? array('checked'=>'checked') : array();
-				$input = Widget::Input('show_created', null, 'checkbox', $checked);
+				// $checked = $parent->get('show_created') == 1 ? array('checked'=>'checked') : array();
+				$input = Widget::Input('show_created', null, 'checkbox');
 				$label->setValue(__('%s hide others', array($input->generate())));
 				$container->appendChild($label);
 
@@ -113,15 +114,12 @@ Class SBLPView_Checkboxes
             #sblp-view-'.$parent->get('id').' select { display: none; }
         ', array('type'=>'text/css')));
 
-		$createdIDs = $parent->getCreatedEntryIds();
-
         // Javascript should be placed inside an sblp_initview[$viewName]()-function, to make sure it gets executed whenever the view
         // reloads with AJAX. This happens when an entry gets added, edited or deleted:
         $viewWrapper->appendChild(new XMLElement('script', '
             sblp_initview["'.$viewName.'"] = function()
             {
                 var $ = jQuery;
-				var created = ['.implode(',', $createdIDs).'];
 				var multiple = '.($parent->get('allow_multiple_selection') == 'yes' ? 'true' : 'false').';
                 $("#'.$viewName.' select option:selected").each(function(){
                     $("#'.$viewName.' div.sblp-checkboxes input[value=" + $(this).val() + "]").attr("checked", "checked");
@@ -148,13 +146,9 @@ Class SBLPView_Checkboxes
                 $("#'.$viewName.' input[name=show_created]").change(function(){
                 	if($(this).attr("checked"))
                 	{
-                		// Only show the created items:
+                		// Only show the selected items:
                 		$("#'.$viewName.' label").hide();
                 		$("#'.$viewName.' label:has(input:checked)").show();
-                		for(var i in created)
-                		{
-                			$("#'.$viewName.' label[rel="+created[i]+"]").show();
-                		}
                 	} else {
                 		// Show everything:
                 		$("#'.$viewName.' label").show();

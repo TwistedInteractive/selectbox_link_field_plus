@@ -40,7 +40,14 @@ jQuery(function($){
             sblp_edit = false;
             // Hide the header and the footer of the edit window (after all, it's just a default Symphony page):
             $("#header, #footer, button.delete", iFrame.contentWindow.document).hide();
-            $("#sblp-iframe").show();
+		    // Edit the form to send the parent ID
+		    var a = window.location.href.split('/edit/');
+		    if(a.length == 2)
+		    {
+			    var action = $("form", iFrame.contentWindow.document).attr("action");
+			    $("form", iFrame.contentWindow.document).append('<input type="hidden" name="sblp_parent" value="' + parseInt(a[1].replace('/', '')) + '" />');
+		    }
+	        $("#sblp-iframe").show();
         }
     });
 
@@ -78,7 +85,7 @@ function sblp_editEntry(viewName, sectionHandle, id)
     sblp_edit = true; // Set this parameter to prevent the edit-window from closing automaticly:
     jQuery("#sblp-white, #sblp-popup").show();
     // Use native Symphony functionality to edit an entry:
-    jQuery("#sblp-popup iframe").attr("src", Symphony.WEBSITE + '/symphony/publish/' + sectionHandle + '/edit/' + id);
+    jQuery("#sblp-popup iframe").attr("src", Symphony.Context.get('root') + '/symphony/publish/' + sectionHandle + '/edit/' + id);
 }
 
 /**
@@ -100,7 +107,7 @@ function sblp_deleteEntry(viewName, sectionHandle, id)
             'with-selected': 'delete'
         };
         data['items[' + id + ']'] = 'yes';
-        jQuery.post(Symphony.WEBSITE + '/symphony/publish/' + sectionHandle + '/', data, function(){
+        jQuery.post(Symphony.Context.get('root') + '/symphony/publish/' + sectionHandle + '/', data, function(){
             // Reload the view:
             var selected = jQuery("#" + sblp_currentView + " select").val();
             jQuery("#" + sblp_currentView).load(window.location.href + ' #' + sblp_currentView, function(){
@@ -144,7 +151,7 @@ function sblp_sortItems(viewName, sourceList, attributeName, save)
     // console.log(save);
     if(save)
     {
-        $.post(Symphony.WEBSITE + '/symphony/extension/selectbox_link_field_plus/', {
+        $.post(Symphony.Context.get('root') + '/symphony/extension/selectbox_link_field_plus/', {
             id: sblp_getEntryIDFromURL(),
             order: ids.join(',')
         });
@@ -162,7 +169,7 @@ function sblp_loadSorting(viewName, sourceListSelector, attributeName)
     var $ = jQuery;
     // First of all, get the ids:
     var entryID = sblp_getEntryIDFromURL();
-    $.get(Symphony.WEBSITE + '/symphony/extension/selectbox_link_field_plus/', {
+    $.get(Symphony.Context.get('root') + '/symphony/extension/selectbox_link_field_plus/', {
         get: entryID
     }, function(data){
         var ids = String(data).split(',');

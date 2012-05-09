@@ -69,10 +69,21 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         if($this->get('required') != 'yes') $options[] = array(NULL, false, NULL);
 
         $states = $this->findOptions($entry_ids);
+
         if(!empty($states)){
             foreach($states as $s){
                 $group = array('label' => $s['name'], 'options' => array());
                 foreach($s['values'] as $id => $v){
+	                if($this->get('show_created') == 1)
+	   	            {
+	   		            // Check if this entry is created by it's parent:
+		                if(Symphony::Database()->fetchVar('count', 0, sprintf('SELECT COUNT(*) AS `count` FROM
+		                    `tbl_sblp_created` WHERE `entry_id` = %d AND `created_id` = %d;', $entry_id, $id)) == 0)
+		                {
+		                    // skip this one:
+		                    continue;
+		                }
+	   	            }
                     $group['options'][] = array($id, in_array($id, $entry_ids), General::sanitize($v));
                 }
                 $options[] = $group;
