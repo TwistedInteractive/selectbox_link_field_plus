@@ -93,7 +93,7 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
                   `related_field_id` VARCHAR(255) NOT NULL,
                   `limit` int(4) unsigned NOT NULL default '20',
                   `view` VARCHAR(255) NOT NULL default '',
-                  'show_created' int(1) NOT NULL default '0',
+                  `show_created` int(1) NOT NULL default '0',
               PRIMARY KEY  (`id`),
               KEY `field_id` (`field_id`)
             )");
@@ -107,12 +107,12 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
             )");
 
 			Symphony::Database()->query("CREATE TABLE IF NOT EXISTS `tbl_sblp_created` (
-				`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+				`id` INT NOT NULL AUTO_INCREMENT,
 				`entry_id` INT NOT NULL ,
 				`created_id` INT NOT NULL,
 			  PRIMARY KEY  (`id`),
               KEY `entry_id` (`entry_id`),
-              KEY `entry_id` (`created_id`)
+              KEY `created_id` (`created_id`)
 			) ENGINE = MYISAM;");
         }
         catch (Exception $e) {
