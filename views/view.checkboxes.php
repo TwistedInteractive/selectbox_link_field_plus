@@ -63,7 +63,7 @@ Class SBLPView_Checkboxes
                 // In case of no multiple and not required:
                 if($parent->get('allow_multiple_selection') == 'no' && $parent->get('required') == 'no')
                 {
-                    $label = Widget::Label('<em>'.__('Select none').'</em>', Widget::Input('sblp-checked-'.$parent->get('id'), 0, 'radio'));
+                    $label = Widget::Label('<em>'.__('Select none').'</em>', Widget::Input('sblp-checked-'.$parent->get('id'), '0', 'radio'));
                     $container->appendChild($label);
                 }
                 foreach($optGroup['options'] as $option)
@@ -77,9 +77,9 @@ Class SBLPView_Checkboxes
 					$label = Widget::Label();
                     if($parent->get('allow_multiple_selection') == 'yes')
                     {
-                        $input = Widget::Input('sblp-checked-'.$parent->get('id').'[]', $id, 'checkbox');
+                        $input = Widget::Input('sblp-checked-'.$parent->get('id').'[]', (string)$id, 'checkbox');
                     } else {
-						$input = Widget::Input('sblp-checked-'.$parent->get('id'), $id, 'radio');
+						$input = Widget::Input('sblp-checked-'.$parent->get('id'), (string)$id, 'radio');
                     }
 					$label->setValue(__('%s <span class="text">%s</span>', array($input->generate(), $value)));
 					$label->setAttribute('title', $value);

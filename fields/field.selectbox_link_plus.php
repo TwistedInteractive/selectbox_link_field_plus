@@ -189,22 +189,21 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         if($id === false) return false;
 
         $fields = array();
-        $fields['field_id'] = $id;
-        if($this->get('related_field_id') != '') $fields['related_field_id'] = $this->get('related_field_id');
-        $fields['allow_multiple_selection'] = $this->get('allow_multiple_selection') ? $this->get('allow_multiple_selection') : 'no';
-        $fields['show_association'] = $this->get('show_association') == 'yes' ? 'yes' : 'no';
-        $fields['limit'] = max(1, (int)$this->get('limit'));
-        $fields['related_field_id'] = implode(',', $this->get('related_field_id'));
-        $fields['view'] = $this->get('view');
-		$fields['show_created'] = $this->get('show_created') == 'yes' ? 1 : 0;
+        // $fields['field_id'] = $id;
+        if($this->get('related_field_id') != '') $settings['related_field_id'] = $this->get('related_field_id');
+	    $settings['allow_multiple_selection'] = $this->get('allow_multiple_selection') ? $this->get('allow_multiple_selection') : 'no';
+	    $settings['show_association'] = $this->get('show_association') == 'yes' ? 'yes' : 'no';
+	    $settings['limit'] = max(1, (int)$this->get('limit'));
+	    $settings['related_field_id'] = implode(',', $this->get('related_field_id'));
+	    $settings['view'] = $this->get('view');
+	    $settings['show_created'] = $this->get('show_created') == 'yes' ? 1 : 0;
 
-        Symphony::Database()->query("DELETE FROM `tbl_fields_".$this->handle()."` WHERE `field_id` = '$id'");
+	    FieldManager::saveSettings($id, $settings);
 
-        if(!Symphony::Database()->insert($fields, 'tbl_fields_' . $this->handle())) return false;
+	    SectionManager::removeSectionAssociation($id);
 
-        $this->removeSectionAssociation($id);
         foreach($this->get('related_field_id') as $field_id){
-            $this->createSectionAssociation(NULL, $id, $field_id, $this->get('show_association') == 'yes' ? true : false);
+	        SectionManager::createSectionAssociation(null, $id, $field_id, $this->get('show_association') == 'yes' ? true : false);
         }
 
         return true;
