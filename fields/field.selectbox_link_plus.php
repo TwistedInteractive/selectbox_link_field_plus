@@ -74,16 +74,16 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
             foreach($states as $s){
                 $group = array('label' => $s['name'], 'options' => array());
                 foreach($s['values'] as $id => $v){
-	                if($this->get('show_created') == 1)
-	   	            {
-	   		            // Check if this entry is created by it's parent:
-		                if(Symphony::Database()->fetchVar('count', 0, sprintf('SELECT COUNT(*) AS `count` FROM
-		                    `tbl_sblp_created` WHERE `entry_id` = %d AND `created_id` = %d;', $entry_id, $id)) == 0)
-		                {
-		                    // skip this one:
-		                    continue;
-		                }
-	   	            }
+                    if($this->get('show_created') == 1)
+                    {
+                        // Check if this entry is created by it's parent:
+                        if(Symphony::Database()->fetchVar('count', 0, sprintf('SELECT COUNT(*) AS `count` FROM
+                            `tbl_sblp_created` WHERE `entry_id` = %d AND `created_id` = %d;', $entry_id, $id)) == 0)
+                        {
+                            // skip this one:
+                            continue;
+                        }
+                    }
                     $group['options'][] = array($id, in_array($id, $entry_ids), General::sanitize($v));
                 }
                 $options[] = $group;
@@ -95,31 +95,43 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         $label = Widget::Label($this->get('label'));
 
         // Generate the buttons the create entries in the related sections:
-        $related_fields = $this->get('related_field_id');
-        $related_sections = array();
-        foreach($related_fields as $id)
-        {
-            // get the section:
-            $related_sections[] = Symphony::Database()->fetchRow(0, 'SELECT A.`name`, A.`id`, A.`handle` FROM
-                `tbl_sections` A, `tbl_fields` B  WHERE A.`id` = B.`parent_section` AND B.`id` = '.$id.';');
-        }
-        $buttons = new XMLElement('span', null, array('class'=>'sblp-buttons'));
-        foreach($related_sections as $section)
-        {
-            $buttons->appendChild(Widget::Anchor(sprintf(__('Create new entry in "%s"'), $section['name']),
-                URL.'/symphony/publish/'.$section['handle'].'/new/', null,
-                'create button sblp-add'));
-        }
-        $label->appendChild($buttons);
-
         $viewWrapper = new XMLElement('div', null, array('id'=>'sblp-view-'.$this->get('id')));
 
-        // Load the correct View:
-        require_once(EXTENSIONS.'/selectbox_link_field_plus/views/view.'.$this->get('view').'.php');
-        $className = 'SBLPView_'.ucfirst($this->get('view'));
-        $view = new $className;
-        
-        $view->generateView($viewWrapper, $fieldname, $options, $this);
+        // edge case when new entry, required field but can't select entries
+        if( $this->get('show_created') === '1'
+            && $this->get('required') === 'yes'
+            && is_null($entry_id)
+        ){
+            $viewWrapper->appendChild(new XMLElement('p', __('This field will be enabled after you create the entry.'), array('class' => 'help')));
+        }
+        else{
+            $related_fields = $this->get('related_field_id');
+            $related_sections = array();
+            foreach($related_fields as $id)
+            {
+                // get the section:
+                $related_sections[] = Symphony::Database()->fetchRow(0, 'SELECT A.`name`, A.`id`, A.`handle` FROM
+                `tbl_sections` A, `tbl_fields` B  WHERE A.`id` = B.`parent_section` AND B.`id` = '.$id.';');
+            }
+            $buttons = new XMLElement('span', null, array('class'=>'sblp-buttons'));
+            foreach($related_sections as $section)
+            {
+                $buttons->appendChild(Widget::Anchor(
+                    sprintf(__('Create new entry in "%s"'), $section['name']),
+                    URL.'/symphony/publish/'.$section['handle'].'/new/',
+                    null,
+                    'create button sblp-add'
+                ));
+            }
+            $label->appendChild($buttons);
+
+            // Load the correct View:
+            require_once(EXTENSIONS.'/selectbox_link_field_plus/views/view.'.$this->get('view').'.php');
+            $className = 'SBLPView_'.ucfirst($this->get('view'));
+            $view = new $className;
+
+            $view->generateView($viewWrapper, $fieldname, $options, $this);
+        }
 
         $label->appendChild($viewWrapper);
 
@@ -127,6 +139,21 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
             $wrapper->appendChild(Widget::wrapFormElementWithError($label, $error));
         }
         else $wrapper->appendChild($label);
+    }
+
+    public function checkPostFieldData($data, &$message, $entry_id = null){
+        $result = parent::checkPostFieldData($data, $message, $entry_id);
+
+        // if new entry, required field && show_created, bypass required option
+        if( $this->get('show_created') === '1'
+            && $result === self::__MISSING_FIELDS__
+            && is_null($entry_id)
+        ){
+            $message = '';
+            return self::__OK__;
+        }
+
+        return self::__OK__;
     }
 
 	/**
