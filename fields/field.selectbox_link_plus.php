@@ -6,7 +6,7 @@
  * Time: 10:46
  */
 
- 
+
 if(!defined('__IN_SYMPHONY__')) die('<h2>Symphony Error</h2><p>You cannot directly access this file</p>');
 
 require_once(EXTENSIONS.'/selectbox_link_field/fields/field.selectbox_link.php');
@@ -20,28 +20,24 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
      * @param $parent
      */
     public function __construct(){
-        try
-        {
-            parent::__construct();
-        } catch(Exception $e) {
-            parent::__construct($this);
-        }
+        parent::__construct();
 
         $this->_name = __('Select Box Link +');
         $this->_required = true;
         $this->_showassociation = true;
-
-        // Default settings
-        $this->set('show_column', 'no');
-        $this->set('show_association', 'yes');
-        $this->set('required', 'yes');
-        $this->set('limit', 20);
-        $this->set('related_field_id', array());
-
-        if(!isset(self::$em) && class_exists('EntryManager')) {
-            self::$em = new EntryManager(Symphony::Engine());
-        }
     }
+
+	public function findDefaults(array &$settings){
+		$settings['required'] = 'yes';
+		$settings['allow_multiple_selection'] = 'no';
+		$settings['show_column'] = 'no';
+		$settings['show_association'] = 'yes';
+		$settings['limit'] = 20;
+		$settings['enable_create'] = 1;
+		$settings['enable_edit'] = 1;
+		$settings['enable_delete'] = 1;
+		$settings['related_field_id'] = array();
+	}
 
     /**
      * Display the publish panel
@@ -66,29 +62,7 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
             }
         }
 
-        if($this->get('required') != 'yes') $options[] = array(NULL, false, NULL);
-
-        $states = $this->findOptions($entry_ids);
-
-        if(!empty($states)){
-            foreach($states as $s){
-                $group = array('label' => $s['name'], 'options' => array());
-                foreach($s['values'] as $id => $v){
-                    if($this->get('show_created') == 1)
-                    {
-                        // Check if this entry is created by it's parent:
-                        if(Symphony::Database()->fetchVar('count', 0, sprintf('SELECT COUNT(*) AS `count` FROM
-                            `tbl_sblp_created` WHERE `entry_id` = %d AND `created_id` = %d;', $entry_id, $id)) == 0)
-                        {
-                            // skip this one:
-                            continue;
-                        }
-                    }
-                    $group['options'][] = array($id, in_array($id, $entry_ids), General::sanitize($v));
-                }
-                $options[] = $group;
-            }
-        }
+        if($this->get('required') != 'yes') $options[] = array(null, false, null);
 
         $fieldname = 'fields'.$prefix.'['.$this->get('element_name').']'.$postfix;
         if($this->get('allow_multiple_selection') == 'yes') $fieldname .= '[]';
@@ -105,25 +79,49 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
             $viewWrapper->appendChild(new XMLElement('p', __('This field will be enabled after you create the entry.'), array('class' => 'help')));
         }
         else{
-            $related_fields = $this->get('related_field_id');
-            $related_sections = array();
-            foreach($related_fields as $id)
-            {
-                // get the section:
-                $related_sections[] = Symphony::Database()->fetchRow(0, 'SELECT A.`name`, A.`id`, A.`handle` FROM
+	        // Create button
+	        if( $this->get('enable_create') == 1 ){
+		        $related_fields = $this->get('related_field_id');
+		        $related_sections = array();
+		        foreach($related_fields as $id)
+		        {
+			        // get the section:
+			        $related_sections[] = Symphony::Database()->fetchRow(0, 'SELECT A.`name`, A.`id`, A.`handle` FROM
                 `tbl_sections` A, `tbl_fields` B  WHERE A.`id` = B.`parent_section` AND B.`id` = '.$id.';');
-            }
-            $buttons = new XMLElement('span', null, array('class'=>'sblp-buttons'));
-            foreach($related_sections as $section)
-            {
-                $buttons->appendChild(Widget::Anchor(
-                    sprintf(__('Create new entry in "%s"'), $section['name']),
-                    URL.'/symphony/publish/'.$section['handle'].'/new/',
-                    null,
-                    'create button sblp-add'
-                ));
-            }
-            $label->appendChild($buttons);
+		        }
+
+		        $buttons = new XMLElement('span', null, array('class'=>'sblp-buttons'));
+		        foreach($related_sections as $section)
+		        {
+			        $buttons->appendChild(Widget::Anchor(sprintf(__('Create new entry in "%s"'), $section['name']),
+				        URL.'/symphony/publish/'.$section['handle'].'/new/', null,
+				        'create button sblp-add'));
+		        }
+		        $label->appendChild($buttons);
+	        }
+
+	        // Find entries
+	        $states = $this->findOptions($entry_ids);
+
+	        if(!empty($states)){
+		        foreach($states as $s){
+			        $group = array('label' => $s['name'], 'options' => array());
+			        foreach($s['values'] as $id => $v){
+				        if($this->get('show_created') == 1)
+				        {
+					        // Check if this entry is created by it's parent:
+					        if(Symphony::Database()->fetchVar('count', 0, sprintf('SELECT COUNT(*) AS `count` FROM
+                            `tbl_sblp_created` WHERE `entry_id` = %d AND `created_id` = %d;', $entry_id, $id)) == 0)
+					        {
+						        // skip this one:
+						        continue;
+					        }
+				        }
+				        $group['options'][] = array($id, in_array($id, $entry_ids), General::sanitize($v));
+			        }
+			        $options[] = $group;
+		        }
+	        }
 
             // Load the correct View:
             require_once(EXTENSIONS.'/selectbox_link_field_plus/views/view.'.$this->get('view').'.php');
@@ -136,9 +134,11 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
         $label->appendChild($viewWrapper);
 
         if(!is_null($error)) {
-            $wrapper->appendChild(Widget::wrapFormElementWithError($label, $error));
+            $wrapper->appendChild(Widget::Error($label, $error));
         }
-        else $wrapper->appendChild($label);
+        else{
+	        $wrapper->appendChild($label);
+        }
     }
 
     public function checkPostFieldData($data, &$message, $entry_id = null){

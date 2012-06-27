@@ -79,11 +79,17 @@ Class SBLPView_Gallery
                     // Please note that the edit- and delete-buttons use javascript functions provided by sbl+ to handle
                     // this functionality. This is done to make sure this extension uses as much native Symphony
                     // functionality as possible:
-                    $div = new XMLElement('div', '
-                        <a href="#" class="edit" title="'.__('Edit this item').'" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">E</a>
-                        <a href="#" class="delete" title="'.__('Delete this item').'" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">×</a>
-                        <a href="#" title="'.$href.'" class="thumb">'.$img.'</a>', $attr);
-                    $container->appendChild($div);
+	                $actions = '';
+	                if( $parent->get('enable_edit') == 1 ){
+		                $actions .= '<a href="#" class="edit" title="'.__('Edit this item').'" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">E</a>';
+	                }
+	                if( $parent->get('enable_delete') == 1 ){
+		                $actions .= '<a href="#" class="delete" title="'.__('Delete this item').'" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">×</a>';
+	                }
+	                $actions .= '<a href="#" title="'.$href.'" class="thumb">'.$img.'</a>';
+
+	                $div = new XMLElement('div', $actions, $attr);
+	                $container->appendChild($div);
                 }
             }
             $gallery->appendChild($container);
