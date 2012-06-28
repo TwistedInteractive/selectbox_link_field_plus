@@ -235,33 +235,36 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
      * Save the settings panel
      * @return bool
      */
-    public function commit(){
-        if(!parent::commit()) return false;
+	public function commit(){
+		if(!parent::commit()) return false;
 
-        $id = $this->get('id');
+		$id = $this->get('id');
 
-        if($id === false) return false;
+		if($id === false) return false;
 
-        $fields = array();
-        // $fields['field_id'] = $id;
-        if($this->get('related_field_id') != '') $settings['related_field_id'] = $this->get('related_field_id');
-	    $settings['allow_multiple_selection'] = $this->get('allow_multiple_selection') ? $this->get('allow_multiple_selection') : 'no';
-	    $settings['show_association'] = $this->get('show_association') == 'yes' ? 'yes' : 'no';
-	    $settings['limit'] = max(1, (int)$this->get('limit'));
-	    $settings['related_field_id'] = implode(',', $this->get('related_field_id'));
-	    $settings['view'] = $this->get('view');
-	    $settings['show_created'] = $this->get('show_created') == 'yes' ? 1 : 0;
+		$fields = array();
+		// $fields['field_id'] = $id;
+		if($this->get('related_field_id') != '') $settings['related_field_id'] = $this->get('related_field_id');
+		$settings['allow_multiple_selection'] = $this->get('allow_multiple_selection') ? $this->get('allow_multiple_selection') : 'no';
+		$settings['show_association'] = $this->get('show_association') == 'yes' ? 'yes' : 'no';
+		$settings['limit'] = max(1, (int)$this->get('limit'));
+		$settings['related_field_id'] = implode(',', $this->get('related_field_id'));
+		$settings['view'] = $this->get('view');
+		$settings['show_created'] = $this->get('show_created') == 'yes' ? 1 : 0;
+		$settings['enable_create'] = $this->get('enable_create') == 'yes' ? 1 : 0;
+		$settings['enable_edit'] = $this->get('enable_edit') == 'yes' ? 1 : 0;
+		$settings['enable_delete'] = $this->get('enable_delete') == 'yes' ? 1 : 0;
 
-	    FieldManager::saveSettings($id, $settings);
+		FieldManager::saveSettings($id, $settings);
 
-	    SectionManager::removeSectionAssociation($id);
+		SectionManager::removeSectionAssociation($id);
 
-        foreach($this->get('related_field_id') as $field_id){
-	        SectionManager::createSectionAssociation(null, $id, $field_id, $this->get('show_association') == 'yes' ? true : false);
-        }
+		foreach($this->get('related_field_id') as $field_id){
+			SectionManager::createSectionAssociation(null, $id, $field_id, $this->get('show_association') == 'yes' ? true : false);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
     /**
      * Override the appendFormattedElement to put the entries in the datasource in the same order as they were stored
