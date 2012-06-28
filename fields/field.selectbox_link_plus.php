@@ -179,41 +179,57 @@ Class fieldSelectBox_Link_plus extends fieldSelectBox_Link {
      * @param null $errors
      * @return void
      */
-    public function displaySettingsPanel(&$wrapper, $errors=NULL){
-        // Just load the regular settings panel:
-        parent::displaySettingsPanel($wrapper, $errors);
+	public function displaySettingsPanel(&$wrapper, $errors=NULL){
+		// Just load the regular settings panel:
+		parent::displaySettingsPanel($wrapper, $errors);
 
-        // Add the view-picker:
-        $options = array();
-        $files = glob(EXTENSIONS.'/selectbox_link_field_plus/views/*.php');
-        foreach($files as $file)
-        {
-            $handle    = str_replace(array('view.', '.php'), '', basename($file));
-            $className = 'SBLPView_'.ucfirst($handle);
-            require_once($file);
-            $view = new $className;
-            $options[] = array($handle, $this->get('view') == $handle, $view->getName());
-        }
-		$fieldset = new XMLElement('div', null, array('class'=>'group'));
+		// Add the view-picker:
+		$options = array();
+		$files = glob(EXTENSIONS.'/selectbox_link_field_plus/views/*.php');
+		foreach($files as $file)
+		{
+			$handle    = str_replace(array('view.', '.php'), '', basename($file));
+			$className = 'SBLPView_'.ucfirst($handle);
+			require_once($file);
+			$view = new $className;
+			$options[] = array($handle, $this->get('view') == $handle, $view->getName());
+		}
+		$fieldset = new XMLElement('div', null, array('class'=>'two columns'));
 
-		$label = Widget::Label();
-/*		$checked = $this->get('show_created') == 1 ? array('checked'=>'checked') : array();
-		$label->appendChild(Widget::Input('fields['.$this->get('sortorder').'][show_created]', null, 'checkbox', $checked));
-		$label->setValue(__('Only show entries created by the entry itself'));*/
-
+		$label = Widget::Label(null, null, 'column');
 		$input = Widget::Input('fields['.$this->get('sortorder').'][show_created]', 'yes', 'checkbox');
 		if ($this->get('show_created') == 1) $input->setAttribute('checked', 'checked');
-
 		$label->setValue(__('<br />%s Only show entries created by the parent entry', array($input->generate())));
-
 		$fieldset->appendChild($label);
 
-        $label = Widget::Label(__('View'));
-        $label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][view]', $options));
+		$label = Widget::Label(__('View'), null, 'column');
+		$label->appendChild(Widget::Select('fields['.$this->get('sortorder').'][view]', $options));
 		$fieldset->appendChild($label);
 
-        $wrapper->insertChildAt(4, $fieldset);
-    }
+		$wrapper->insertChildAt(4, $fieldset);
+
+		$fieldset = new XMLElement('div', null, array('class' => 'three columns'));
+
+		$label = Widget::Label(null, null, 'column');
+		$input = Widget::Input('fields['.$this->get('sortorder').'][enable_create]', 'yes', 'checkbox');
+		if ($this->get('enable_create') == 1) $input->setAttribute('checked', 'checked');
+		$label->setValue(__('<br />%s Enable Create button', array($input->generate())));
+		$fieldset->appendChild($label);
+
+		$label = Widget::Label(null, null, 'column');
+		$input = Widget::Input('fields['.$this->get('sortorder').'][enable_edit]', 'yes', 'checkbox');
+		if ($this->get('enable_edit') == 1) $input->setAttribute('checked', 'checked');
+		$label->setValue(__('<br />%s Enable Edit button', array($input->generate())));
+		$fieldset->appendChild($label);
+
+		$label = Widget::Label(null, null, 'column');
+		$input = Widget::Input('fields['.$this->get('sortorder').'][enable_delete]', 'yes', 'checkbox');
+		if ($this->get('enable_delete') == 1) $input->setAttribute('checked', 'checked');
+		$label->setValue(__('<br />%s Enable Delete button', array($input->generate())));
+		$fieldset->appendChild($label);
+
+		$wrapper->insertChildAt(5, $fieldset);
+	}
 
     /**
      * Save the settings panel
