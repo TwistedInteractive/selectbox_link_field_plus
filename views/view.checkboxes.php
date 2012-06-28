@@ -85,12 +85,20 @@ Class SBLPView_Checkboxes
 					$label->setValue(__('%s <span class="text">%s</span>', array($input->generate(), $value)));
 					$label->setAttribute('title', $value);
 					$label->setAttribute('rel', $id);
-                    $label->appendChild(new XMLElement('span', '
-                        <a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Edit</a>
-                        <a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>',
-                        array('class' => 'sblp-checkboxes-actions')
-                    ));
-                    $container->appendChild($label);
+	                $actions = '';
+	                if( $parent->get('enable_edit') == 1 ){
+		                $actions .= '<a href="#" class="edit" onclick="sblp_editEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Edit</a>';
+	                }
+	                if( $parent->get('enable_delete') == 1 ){
+		                if( $actions !== '' ) $actions .= '|';
+		                $actions .= '<a href="#" class="delete" onclick="sblp_deleteEntry(\''.$viewName.'\',\''.$sectionName.'\','.$id.'); return false;">Delete</a>';
+	                }
+	                if( $actions !== '' ){
+		                $label->appendChild(new XMLElement('span', $actions, array('class' => 'sblp-checkboxes-actions')));
+	                }
+
+	                $container->appendChild($label);
+
                 }
             }
             $checkboxes->appendChild($container);
