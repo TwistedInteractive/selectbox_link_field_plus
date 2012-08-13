@@ -102,6 +102,9 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
                   `limit` int(4) unsigned NOT NULL default '20',
                   `view` VARCHAR(255) NOT NULL default '',
                   `show_created` int(1) NOT NULL default '0',
+                  `enable_create` int(1) NOT NULL default '1',
+                  `enable_edit` int(1) NOT NULL default '1',
+                  `enable_delete` int(1) NOT NULL default '1',
               PRIMARY KEY  (`id`),
               KEY `field_id` (`field_id`)
             )");
@@ -195,6 +198,8 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
 		        ADD `enable_edit` INT(1) NOT NULL DEFAULT 1,
 		        ADD `enable_delete` INT(1) NOT NULL DEFAULT 1");
 	    }
+
+
     }
 }
  
