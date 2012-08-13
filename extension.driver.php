@@ -188,6 +188,13 @@ Class extension_selectbox_link_field_plus extends extension_selectbox_link_field
 				}
 			}
         }
+
+	    if(version_compare($previousVersion, '1.5', '<')){
+		    Symphony::Database()->query("ALTER TABLE  `tbl_fields_selectbox_link_plus`
+		        ADD `enable_create` INT(1) NOT NULL DEFAULT 1,
+		        ADD `enable_edit` INT(1) NOT NULL DEFAULT 1,
+		        ADD `enable_delete` INT(1) NOT NULL DEFAULT 1");
+	    }
     }
 }
  
