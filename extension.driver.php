@@ -39,6 +39,9 @@
                   `limit` int(4) unsigned NOT NULL default '20',
                   `view` VARCHAR(255) NOT NULL default '',
                   `show_created` int(1) NOT NULL default '0',
+                  `enable_create` int(1) NOT NULL default '1',
+                  `enable_edit` int(1) NOT NULL default '1',
+                  `enable_delete` int(1) NOT NULL default '1',
               PRIMARY KEY  (`id`),
               KEY `field_id` (`field_id`)
             )");
