@@ -1,0 +1,87 @@
+.field-selectbox_link_plus .sblp-view-gallery select.target {
+	display: none;
+}
+
+.field-selectbox_link_plus div.sblp-gallery div.image {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+	cursor: pointer;
+	float: left;
+	font-size: 10px;
+	margin-bottom: 5px;
+	margin-right: 5px;
+	position: relative;
+}
+
+.field-selectbox_link_plus div.sblp-gallery {
+	border: 1px solid #eee;
+	padding: 10px;
+	padding-right: 0;
+	margin-top: 5px;
+	box-shadow: 2px 2px 6px rgba(0, 0, 0, 1) inset;
+	background: #333;
+	overflow: auto;
+	max-height: 548px;
+	border: 1px solid #ccc;
+	position: relative;
+}
+
+.field-selectbox_link_plus div.sblp-gallery h3 {
+	font-size: 16px;
+	margin-bottom: 10px;
+	color: #fff;
+	text-shadow: none;
+}
+
+.field-selectbox_link_plus div.sblp-gallery h3 em {
+	font-size: 10px;
+	font-weight: normal;
+	font-style: normal;
+}
+
+.field-selectbox_link_plus div.sblp-gallery span {
+	float: right;
+}
+
+.field-selectbox_link_plus div.sblp-gallery div.container {
+	clear: both;
+}
+
+.field-selectbox_link_plus div.sblp-gallery div.selected {
+	outline: 5px solid #81b934;
+	background: #81b934;
+}
+
+.field-selectbox_link_plus div.sblp-gallery div.selected img {
+	opacity: .5;
+}
+
+.field-selectbox_link_plus div.sblp-gallery a.edit,
+.field-selectbox_link_plus div.sblp-gallery a.delete {
+	position: absolute;
+	background: #81b934;
+	left: 0;
+	top: 0;
+	z-index: 2;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+	text-decoration: none;
+	font-size: 12px;
+	font-weight: bold;
+	color: #fff;
+	display: none;
+}
+
+.field-selectbox_link_plus div.sblp-gallery a.delete {
+	background: #b93434;
+}
+
+.field-selectbox_link_plus div.sblp-gallery div.image:hover a.edit,
+.field-selectbox_link_plus div.sblp-gallery div.image:hover a.delete {
+	display: block;
+}
+
+.field-selectbox_link_plus div.sblp-gallery .hide-others {
+	color: #fff;
+	top: 15px;
+}
