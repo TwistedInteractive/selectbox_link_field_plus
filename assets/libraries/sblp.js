@@ -54,7 +54,7 @@
 					sblp.edit = false;
 
 					// Hide the header and the footer of the edit window (after all, it's just a default Symphony page):
-					$("#header, #footer, button.delete, #context .actions a.drawer, #drawer-drawer-left", iFrame.contentWindow.document).hide();
+					$("#header, #footer, button.delete, #context .actions a.drawer, #drawer-drawer-left, #context ul.actions", iFrame.contentWindow.document).hide();
 					$("#contents", iFrame.contentWindow.document).css('margin-left', 0);
 
 					// Edit the form to send the parent ID
