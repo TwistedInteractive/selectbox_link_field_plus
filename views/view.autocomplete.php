@@ -20,7 +20,7 @@
 
 
 		public function getName(){
-			return __("Autocomplete')");
+			return __("Autocomplete");
 		}
 
 		public function getHandle(){

@@ -20,7 +20,7 @@
 
 
 		public function getName(){
-			return __("Checkboxes')");
+			return __("Checkboxes");
 		}
 
 		public function getHandle(){
