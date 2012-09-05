@@ -2,6 +2,10 @@ div.field-selectbox_link_plus div.selectbox {
 	display: none;
 }
 
+div.field-selectbox_link_plus {
+	position: relative;
+}
+
 #sblp-white {
 	background: #fff;
 	opacity: 0.7;
@@ -48,7 +52,9 @@ div.field-selectbox_link_plus div.selectbox {
 }
 
 span.sblp-buttons {
-	float: right;
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 span.sblp-buttons select.sblp-section-selector {
