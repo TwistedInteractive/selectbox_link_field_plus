@@ -94,7 +94,7 @@
 				// Open an iframe popup:
 				$("#sblp-white, #sblp-popup").show();
 				// Use native Symphony functionality to create a new entry:
-				$("#sblp-popup iframe").attr("src", $(this).parents(".sblp-buttons").find(".sblp-section-selector :selected").val());
+				$("#sblp-popup iframe").attr("src", $(this).parents(".field-selectbox_link_plus").find(".sblp-section-selector :selected").val());
 				return false;
 			});
 		},
