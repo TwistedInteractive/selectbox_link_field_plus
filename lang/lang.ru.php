@@ -7,7 +7,7 @@
 			'email' => 'info@alexbirukov.ru',
 			'website' => 'http://alexbirukov.ru'
 		),
-		'release-date' => '2012-09-28'
+		'release-date' => '2012-12-11'
 	);
 
 	/**
@@ -15,61 +15,76 @@
 	 */
 	$dictionary = array(
 
-		'Select Box Link +' => 
-		'Select Box Link +',
+		'%s <span class="text">%s</span>' => 
+		'%s <span class="text">%s</span>',
 
-		'<br />%s Only show entries created by the parent entry' => 
-		'<br />%s Показать записи, относящиеся только к родительской записи',
-
-		'View' => 
-		'Вид',
-
-		'<br />%s Enable Create button' => 
-		'<br />%s Разрешить создание записей',
-
-		'<br />%s Enable Edit button' => 
-		'<br />%s Разрешить редактирование',
-
-		'<br />%s Enable Delete button' => 
-		'<br />%s Разрешить удаление',
-
-		'This field will be enabled after you create the entry.' => 
-		'Данное поле станет активным после создания записи.',
-
-		'Autocomplete' => 
-		'Автозавершение',
+		'%s hide others' => 
+		'%s скрыть остальные',
 
 		'(drag to reorder)' => 
 		'(сортировка перетаскиванием)',
 
-		'Select none' => 
-		'Выберите запись',
+		'<br />%s Enable Create button' => 
+		'<br />%s Разрешить создание записей',
 
-		'%s <span class="text">%s</span>' => 
-		'%s <span class="text">%s</span>',
+		'<br />%s Enable Delete button' => 
+		'<br />%s Разрешить удаление',
+
+		'<br />%s Enable Edit button' => 
+		'<br />%s Разрешить редактирование',
+
+		'<br />%s Only show entries created by the parent entry' => 
+		'<br />%s Показать записи, относящиеся только к родительской записи',
+
+		'Autocomplete' => 
+		'Автозавершение',
 
 		'Checkboxes' => 
 		'Чекбоксы',
 
+		'Create new entry in' => 
+		'Создать новую запись в',
+
 		'Default View' => 
 		'Вид по умолчанию',
-
-		'Gallery (select a field of the type \'upload\')' => 
-		'Галерея (укажите поле с типом \'upload\')',
-
-		'Edit this item' => 
-		'Редактировать запись',
 
 		'Delete this item' => 
 		'Удалить запись',
 
-		'Create new entry in' => 
-		'Создать новую запись в',
+		'Edit this item' => 
+		'Редактировать запись',
+
+		'Gallery (select a field of the type \'upload\')' => 
+		'Галерея (укажите поле с типом \'upload\')',
 
 		'Go' => 
 		'Перейти',
 
-		'%s hide others' => 
-		'%s скрыть остальные',
+		'Select Box Link +' => 
+		'Select Box Link +',
+
+		'Select none' => 
+		'Выберите запись',
+
+		'This field will be enabled after you create the entry.' => 
+		'Данное поле станет активным после создания записи.',
+
+		'View' => 
+		'Вид',
+		
+		'ImageGrid (select a field of the type \'upload\')' => 
+		'ImageGrid (укажите поле с типом \'upload\')',
+
+		'Edit Selection' => 
+		'Редактировать выделенное',
+
+		'Select Existing' => 
+		'Выделить сужествующие',
+
+		'Done' => 
+		'Готово',
+
+		'Drag to reorder' => 
+		'Перетащите для сортировки',
 
 	);
