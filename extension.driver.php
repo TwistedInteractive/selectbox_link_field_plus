@@ -1,16 +1,6 @@
 <?php
-	/**
-	 * (c) 2011
-	 * Author: Giel Berkers
-	 * Date: 10-10-11
-	 * Time: 10:45
-	 */
-
-
 
 	require_once(EXTENSIONS.'/selectbox_link_field/extension.driver.php');
-
-
 
 	Class Extension_Selectbox_Link_Field_Plus extends extension_selectbox_link_field
 	{
