@@ -1,13 +1,5 @@
 <?php
-/**
- * (c) 2012
- * Author: Shaw
- * Date: 2012-10-30
- * Time: 01:45
- */
-
 	require_once(EXTENSIONS.'/selectbox_link_field_plus/views/view.php');
-
 
 	// The class name must be 'SBLPView_[filename - view. and .php (ucfirst)]':
 	Class SBLPView_ImageGrid extends SBLPView
