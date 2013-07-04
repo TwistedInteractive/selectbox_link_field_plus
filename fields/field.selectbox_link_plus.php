@@ -1,10 +1,4 @@
 <?php
-	/**
-	 * (c) 2011
-	 * Author: Giel Berkers
-	 * Date: 10-10-11
-	 * Time: 10:46
-	 */
 
 
 	if( !defined('__IN_SYMPHONY__') ) die('<h2>Symphony Error</h2><p>You cannot directly access this file</p>');
