@@ -57,6 +57,10 @@ span.sblp-buttons {
 	right: 0;
 }
 
+.two.columns .column.secondary span.sblp-buttons {
+    top: -3px;
+}
+
 span.sblp-buttons select.sblp-section-selector {
 	display: inline-block;
 	margin-left: 3px;
@@ -72,4 +76,14 @@ span.sblp-buttons a.sblp-add {
 	position: absolute;
 	top: 7px;
 	right: 10px;
+}
+
+@media screen and (min-width: 710px) and (max-width: 1300px) {
+    .two.columns .column.secondary span.sblp-buttons {
+        display: block;
+        position: relative;
+    }
+    .two.columns .column.secondary  span.sblp-buttons select.sblp-section-selector {
+        width: 75%;
+    }
 }
