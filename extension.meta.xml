@@ -7,7 +7,10 @@
 		<type>Field Types</type>
 	</types>
 	<authors>
-		
+		<author>
+			<name github="TwistedInteractive">Twisted Interactive</name>
+			<website>http://www.twisted.nl</website>
+		</author>
 		<author>
 			<name github="vlad-ghita" symphony="vladG">Vlad Ghita</name>
 			<email>vlad_micutul@yahoo.com</email>
